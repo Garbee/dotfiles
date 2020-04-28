@@ -1,0 +1,16 @@
+IdentityFile ~/.ssh/id_rsa
+
+TCPKeepAlive no
+ServerAliveInterval 60
+ServerAliveCountMax 10
+
+Host bitbucket
+  HostName bitbucket.org
+  User git
+Host github
+  HostName github.com
+  User git
+Host gitlab
+  HostName gitlab.com
+  User git
+

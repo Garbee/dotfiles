@@ -61,6 +61,7 @@ casksToInstall=(
     "itsycal"
     "fsmonitor"
     "soundsource"
+    "focusatwill"
 )
 
 if ask "Do you want to install Parallels? (You will need to be present to provide the password for install)"; then
@@ -82,6 +83,7 @@ vared -p 'What global email would you like to use for git?: ' -c gitEmail
 tempDir=$(mktemp -d)
 
 # Configure global settings
+echo "Configuring Global Settings"
 
 ## Install color schemes for Apple Color Picker
 curl -L -o ~/Library/Colors/Nord.clr https://raw.githubusercontent.com/arcticicestudio/nord/develop/src/swatches/Nord.clr
@@ -115,6 +117,7 @@ mkdir -p $HOME/Library/Application Support/Google/Chrome/
 
 ## Misc
 mkdir -p $HOME/Code
+mkdir -p $HOME/bin
 
 # Install Homebrew
 if ! which brew &> /dev/null; then
@@ -122,6 +125,7 @@ if ! which brew &> /dev/null; then
 fi
 
 # Install brewed software
+echo "Installing homebrew software"
 
 brew tap homebrew/cask
 brew tap homebrew/cask-versions
@@ -174,13 +178,20 @@ done
 ## Configurations
 
 ### Git
+echo "Configuring git"
 git config --global user.name "$gitName"
 git config --global user.email "$gitEmail"
+git config --global core.autocrlf false
+git config --global core.filemode false
+git config --global color.ui true
 
 ### Fish Shell
+echo "Configuring Fish Shell"
+echo $(which fish) | sudo tee -a /etc/shells
 chsh -s $(which fish)
 
 ### Itsycal
+echo "Configuring Itsycal"
 defaults write -app Itsycal HideIcon -bool true
 defaults write -app Itsycal SizePreference -bool true
 defaults write -app Itsycal ClockFormat "hh:mm:ss a - EEE, MMM dd yyyy"
@@ -188,17 +199,26 @@ defaults write -app Itsycal ClockFormat "hh:mm:ss a - EEE, MMM dd yyyy"
 # defaults write loginwindow AutoLaunchedApplicationDictionary -array-add "{ "Path" = "/Applications/Itsycal.app"; "Hide" = 0; }"
 
 ### iTerm
+echo "Configuring iTerm"
 defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfiles/iterm2"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ### Setup CotEdtior
+echo "Configuring CotEditor"
 defaults write -app CotEditor fontName "Iosevka"
 defaults write -app CotEditor fontSize 14
-defaults write -app CotEditor defaultTheme "Nord"
 defaults write -app CotEditor lineHeight 1.5
 defaults write -app CotEditor highlightCurrentLine -bool true
+
+### Setup Depot Tools
+echo "Installing depot tools"
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/bin/depot_tools
+
+
 # Cleanup
+echo "Cleaning up"
 rm -rf $tempDir
 
 # Install XCode
+echo "Installing XCode"
 mas install 497799835
