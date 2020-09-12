@@ -318,6 +318,12 @@ if [ ! -f $COMPLETION_DIR/git-flow.fish ]; then
     http --output $COMPLETION_DIR/git-flow.fish https://raw.githubusercontent.com/bobthecow/git-flow-completion/master/git.fish
 fi
 
+FISH_CONFIG_FILE="$HOME/.config/fish/config.fish"
+
+if [ ! -f "$FISH_CONFIG_FILE" ]; then
+    ln -s $HOME/.dotfiles/config/fish/config.fish "$FISH_CONFIG_FILE"
+fi
+
 # Cleanup
 echo "Cleaning up"
 rm -rf $tempDir
