@@ -212,11 +212,7 @@ done
 
 ### Git
 echo "Configuring git"
-git config --global user.name "$gitName"
-git config --global user.email "$gitEmail"
-git config --global core.autocrlf false
-git config --global core.filemode false
-git config --global color.ui true
+ln -s ~/.dotfiles/git/gitconfig ~/.gitconfig
 
 ### Fish Shell
 echo "Configuring Fish Shell"
