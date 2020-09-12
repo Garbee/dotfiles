@@ -1,0 +1,505 @@
+[init]
+    defaultBranch = main
+[user]
+    name = Jonathan Garbee
+    email = jonathan@garbee.me
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22 reverse
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+[alias]
+  ##
+  # One letter alias for our most frequent commands.
+  #
+  # Guidelines: these aliases do not use options, because we want
+  # these aliases to be easy to compose and use in many ways.
+  ##
+    a = add
+    b = branch
+    c = commit
+    d = diff
+    f = fetch
+    g = grep
+    l = log
+    m = merge
+    o = checkout
+    p = pull
+    r = remote
+    s = status
+    w = whatchanged
+    sb = show-branch
+    # clean everything to be pristine
+    nuke = clean -ffdx
+    
+    # Get default branch name as a helper for other aliases
+    defaultBranch = config init.defaultBranch
+    
+    ### submodule ###
+    # submodule - enables foreign repositories to be embedded within a dedicated subdirectory of the source tree.
+    sm = submodule
+
+    # submodule init
+    smi = submodule init
+
+    # submodule add
+    sma = submodule add
+
+    # submodule sync
+    sms = submodule sync
+
+    # submodule update
+    smu = submodule update
+
+    # submodule update with initialize
+    smui = submodule update --init
+
+    # submodule update with initialize and recursive; this is useful to bring a submodule fully up to date.
+    smuir = submodule update --init --recursive
+
+    ### status ###
+
+    # status with short format instead of full details
+    ss = status --short
+
+    # status with short format and showing branch and tracking info.
+    ssb = status --short --branch
+
+    patch = !git --no-pager diff --no-color
+    ignored = ls-files --others --i --exclude-standard
+    
+    # Last tag in the current branch
+    lasttag = describe --tags --abbrev=0
+
+    # Latest annotated tag in all branches
+    lasttagged = !git describe --tags `git rev-list --tags --max-count=1`
+
+    # From https://gist.github.com/492227
+    head = log -n1
+    heads = !"git log origin/$(git defaultBranch).. --format='%Cred%h%Creset;%C(yellow)%an%Creset;%H;%Cblue%f%Creset' | git name-rev --stdin --always --name-only | column -t -s';'"
+    lost = !"git fsck | awk '/dangling commit/ {print $3}' | git show --format='SHA1: %C(yellow)%h%Creset %f' --stdin | awk '/SHA1/ {sub(\"SHA1: \", \"\"); print}'"
+
+    # initalize a repo and immediate add an empty commit, which makes rebase easier.
+    init-empty = !"f() { git init && git commit --allow-empty --allow-empty-message --message ''; }; f"
+
+    # Show the log of the recent hour, day, week, month, year
+    log-hour  = log --since=1-hour-ago
+    log-day   = log --since=1-day-ago
+    log-week  = log --since=1-week-ago
+    log-month = log --since=1-month-ago
+    log-year  = log --since=1-year-ago
+
+    # Show the log of my own recent hour, day, week, month, year
+    log-my-hour  = log --author $(git config user.email) --since=1-hour-ago
+    log-my-day   = log --author $(git config user.email) --since=1-day-ago
+    log-my-week  = log --author $(git config user.email) --since=1-week-ago
+    log-my-month = log --author $(git config user.email) --since=1-month-ago
+    log-my-year  = log --author $(git config user.email) --since=1-year-ago
+
+    
+    
+# Attic for listing renamed and deleted files.
+# From: http://leahneukirchen.org/blog/archive/2013/01/a-grab-bag-of-git-tricks.html
+# attic [-M] [PATH] - list deleted files of Git repositories
+#
+# Use -M to not show renamed files, and other git-log options as you like.
+    attic = "!f() { \
+  git log --raw --no-renames --date=short --format=\"%h %cd" "$@\" | \
+  awk '/^[0-9a-f]/ { commit=$1; date=$2 } \
+       /^:/ && $5 == \"D\" { print date, commit \"^:\" $6 }' | \
+  less; \
+}; \
+f"
+
+# From: http://leahneukirchen.org/blog/archive/2013/01/a-grab-bag-of-git-tricks.html
+# BUG: When running with remote (-r) on repos like Electron, 
+# awk fails since it will have too many files open.
+# This also exists in the original script, so it wasn't introduced converting it for here.
+# trail [-r] [-t] [COMMIT] - show all branching points in Git history
+   trail = "!f() { \
+[ \"$1\" = -r ] && shift || REMOTES=\"-e refs/remotes/\"; \
+[ \"$1\" = -t ] && shift || TAGS=\"-e refs/tags/\"; \
+COMMIT=$(git rev-parse --no-flags --default HEAD \"$@\"); \
+{ git for-each-ref | grep -v -e '^$' $TAGS $REMOTES \n \
+  git log --date=short --format=\"%cd %h %H\" \"$@\" \n\
+} | awk ' \
+    $2 == \"commit\" || $2 == \"tag\" { \
+      \"git merge-base '$COMMIT' \" $1 | getline mb; \
+      merge[mb] = merge[mb] \" \" $3 \
+    } \
+    { \
+      if ($3 in merge) { \
+        split(merge[$3], mbs, \" \"); \
+        for (i in mbs) { \
+          \"git name-rev --name-only --refs=\\\"\" mbs[i] \"\\\" \" $3 | getline nr; \
+          if (nr != \"undefined\") print $1, $2, nr; \
+        } \
+      } \
+    };' | git -p column; \
+}; \
+f"
+
+  # churn: show log of files that have many changes
+  #
+  #   * Written by (Corey Haines)[http://coreyhaines.com/]
+  #   * Scriptified by Gary Bernhardt
+  #   * Obtained from https://github.com/garybernhardt/dotfiles/blob/master/bin/git-churn
+  #   * Edited for GitAlias.com repo by Joel Parker Henderson
+  #   * Comments by Mislav http://mislav.uniqpath.com/2014/02/hidden-documentation/
+  #
+  # Show churn for whole repo:
+  #
+  #   $ git churn
+  #
+  # Show churn for specific directories:
+  #
+  #   $ git churn app lib
+  #
+  # Show churn for a time range:
+  #
+  #   $ git churn --since=1-month-ago
+  #
+  # These are all standard arguments to `git log`.
+  #
+  # It's possible to get valuable insight from history of a project not only
+  # by viewing individual commits, but by analyzing sets of changes as a whole.
+  # For instance, `git churn` compiles stats about which files change the most.
+  #
+  # For example, to see where work on an app was focused on in the past month:
+  #
+  #     $ git churn --since=1-month-ago app/ | tail
+  #
+  # This can also highlight potential problems with technical debt in a project.
+  # A specific file changing too often is generally a red flag, since it probably
+  # means the file either needed to be frequently fixed for bugs, or the file
+  # holds too much responsibility and should be split into smaller units.
+  #
+  # Similar methods of history analysis can be employed to see which people were
+  # responsible recently for development of a certain part of the codebase.
+  #
+  # For instance, to see who contributed most to the API part of an application:
+  #
+  #    $ git log --format='%an' --since=1-month-ago app/controllers/api/ | \
+  #      sort | uniq -c | sort -rn | head
+  #
+  #    109 Alice Anderson
+  #    13 Bob Brown
+  #    7 Carol Clark
+  #
+  churn = !"f() { git log --all --find-copies --find-renames --name-only --format='format:' \"$@\" | awk 'NF{a[$0]++}END{for(i in a){print a[i], i}}' | sort -rn;};f"
+
+  # Show a specific format string and its number of log entries
+  log-of-format-and-count = "!f() { format=\"$1\"; shift; git log $@ --format=oneline --format="$format" | awk '{a[$0]++}END{for(i in a){print i, a[i], int((a[i]/NR)*100) \"%\"}}' | sort; }; f"
+  log-of-count-and-format = "!f() { format=\"$1\"; shift; git log $@ --format=oneline --format="$format" | awk '{a[$0]++}END{for(i in a){print a[i], int((a[i]/NR)*100) \"%\", i}}' | sort -nr; }; f"
+
+  # Show the number of log entries by a specific format string and date format string
+  log-of-format-and-count-with-date = "!f() { format=\"$1\"; shift; date_format=\"$1\"; shift; git log $@ --format=oneline --format=\"$format\" --date=format:\"$date_format\" | awk '{a[$0]++}END{for(i in a){print i, a[i], int((a[i]/NR)*100) \"%\"}}' | sort -r; }; f"
+  log-of-count-and-format-with-date = "!f() { format=\"$1\"; shift; date_format=\"$1\"; shift; git log $@ --format=oneline --format=\"$format\" --date=format:\"$date_format\" | awk '{a[$0]++}END{for(i in a){print a[i], int((a[i]/NR)*100) \"%\", i}}' | sort -nr; }; f"
+
+  # Show the number of log items by email
+  log-of-email-and-count         = "!f() { git log-of-format-and-count \"%aE\" $@; }; f"
+  log-of-count-and-email         = "!f() { git log-of-count-and-format \"%aE\" $@; }; f"
+
+  # Show the number of log items by hour
+  log-of-hour-and-count          = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%Y-%m-%dT%H\" $@ ; }; f"
+  log-of-count-and-hour          = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%Y-%m-%dT%H\" $@ ; }; f"
+
+  # Show the number of log items by day
+  log-of-day-and-count           = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%Y-%m-%d\" $@ ; }; f"
+  log-of-count-and-day           = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%Y-%m-%d\" $@ ; }; f"
+
+  # Show the number of log items by week
+  log-of-week-and-count          = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%Y#%V\" $@; }; f"
+  log-of-count-and-week          = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%Y#%V\" $@; }; f"
+
+  # Show the number of log items by month
+  log-of-month-and-count         = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%Y-%m\" $@ ; }; f"
+  log-of-count-and-month         = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%Y-%m\" $@ ; }; f"
+
+  # Show the number of log items by year
+  log-of-year-and-count          = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%Y\" $@ ; }; f"
+  log-of-count-and-year          = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%Y\" $@ ; }; f"
+
+  # Show the number of log items by hour of day
+  log-of-hour-of-day-and-count   = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%H\" $@; }; f"
+  log-of-count-and-hour-of-day   = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%H\" $@; }; f"
+
+  # Show the number of log items by day of week
+  log-of-day-of-week-and-count   = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%u\" $@; }; f"
+  log-of-count-and-day-of-week   = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%u\" $@; }; f"
+
+  # Show the number of log items by week of year
+  log-of-week-of-year-and-count  = "!f() { git log-of-format-and-count-with-date \"%ad\" \"%V\" $@; }; f"
+  log-of-count-and-week-of-year  = "!f() { git log-of-count-and-format-with-date \"%ad\" \"%V\" $@; }; f"
+
+  # summary: print a helpful summary of some typical metrics
+  summary = "!f() { \
+    printf \"Summary of this branch...\n\"; \
+    printf \"%s\n\" $(git rev-parse --abbrev-ref HEAD); \
+    printf \"%s first commit timestamp\n\" $(git log --date-order --format=%cI | tail -1); \
+    printf \"%s latest commit timestamp\n\" $(git log -1 --date-order --format=%cI); \
+    printf \"%d commit count\n\" $(git rev-list --count HEAD); \
+    printf \"%d date count\n\" $(git log --format=oneline --format=\"%ad\" --date=format:\"%Y-%m-%d\" | awk '{a[$0]=1}END{for(i in a){n++;} print n}'); \
+    printf \"%d tag count\n\" $(git tag | wc -l); \
+    printf \"%d author count\n\" $(git log --format=oneline --format=\"%aE\" | awk '{a[$0]=1}END{for(i in a){n++;} print n}'); \
+    printf \"%d committer count\n\" $(git log --format=oneline --format=\"%cE\" | awk '{a[$0]=1}END{for(i in a){n++;} print n}'); \
+    printf \"%d local branch count\n\" $(git branch | grep -v \" -> \" | wc -l); \
+    printf \"%d remote branch count\n\" $(git branch -r | grep -v \" -> \" | wc -l); \
+    printf \"\nSummary of this directory...\n\"; \
+    printf \"%s\n\" $(pwd); \
+    printf \"%d file count via git ls-files\n\" $(git ls-files | wc -l); \
+    printf \"%d file count via find command\n\" $(find . | wc -l); \
+    printf \"%d disk usage\n\" $(du -s | awk '{print $1}'); \
+    printf \"\nMost-active authors, with commit count and %%...\n\"; git log-of-count-and-email | head -7; \
+    printf \"\nMost-active dates, with commit count and %%...\n\"; git log-of-count-and-day | head -7; \
+    printf \"\nMost-active files, with churn count\n\"; git churn | head -7; \
+  }; f"
+  
+    # Show the commit's keyword-marked lines.
+  #
+  # Show each line in the commit message that starts with zero or more blanks,
+  # then a keyword (alphanum and dash characters), then a colon.
+  #
+  # Example commit:
+  #
+  #     commit ce505d161fccdbc8d4bf12047846de7433ad6d04
+  #     Author: Joel Parker Henderson <joel@joelparkerhenderson.com>
+  #     Date:   Tue May 28 11:53:47 2019 -0700
+  #
+  #         Add feature foo
+  #
+  #         This commit is to add feature foo.
+  #
+  #         Time: 5 hours
+  #         Cost: 600 USD
+  #
+  # Command:
+  #
+  #     $ git commit-message-key-lines ce505d161fccdbc8d4bf12047846de7433ad6d04
+  #     Commit: ce505d161fccdbc8d4bf12047846de7433ad6d04
+  #     Author: Joel Parker Henderson <joel@joelparkerhenderson.com>
+  #     Date: Tue May 28 11:53:47 2019 -0700
+  #     Time: 5 hours
+  #     Cost: 600 USD
+  #
+  # Normalize the output:
+  #
+  #   * Start the output with "Commit: <commit>"
+  #
+  #   * Omit leading blanks
+  #
+  #   * After the colon, use one space (not tab, not multiple spaces, etc.)
+  #
+  # Known issues:
+  #
+  #   * TODO: improve the keyword matcher so it requires the keyword to end
+  #     in an alphanum (not a dash), and also so the dash is a separator i.e.
+  #     the matcher does not accept a dash followed by another dash.
+  #
+  commit-message-key-lines = "!f(){ echo \"Commit: $1\"; git log \"$1\" --format=fuller | grep \"^[[:blank:]]*[[:alnum:]][-[:alnum:]]*:\" | sed \"s/^[[:blank:]]*//; s/:[[:blank:]]*/: /\"; }; f"
+
+  # Stash aliases for push & pop
+  #
+  # Note that if you are using an older version of git, before 2.16.0,
+  # then you can use the older "stash save" instead of the newer "stash push".
+  save = stash push
+  pop = stash pop
+
+  # Stash snapshot - from http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+  # Take a snapshot of your current working tree without removing changes.
+  # This is handy for refactoring where you can't quite fit what you've done
+  # into a commit but daren't stray too far from now without a backup.
+  #
+  # Running this:
+  #
+  #    $ git snapshot
+  #
+  # Creates this stash:
+  #
+  #    stash@{0}: On feature/handy-git-tricks: snapshot: Mon Apr 8 12:39:06 BST 2013
+  #
+  # And seemingly no changes to your working tree.
+  #
+  snapshot = !git stash push "snapshot: $(date)" && git stash apply "stash@{0}"
+  # When you're a little worried that the world is coming to an end
+  panic = !tar cvf ../panic.tar *
+  # Create an archive file of everything in the repo
+  archive = !"f() { top=$(rev-parse --show-toplevel); cd $top; tar cvf $top.tar $top ; }; f"
+
+##
+  # Reset & Undo
+  ##
+  # Reset and undo aliases are ways to move backwards on the commit chain.
+  # We find that novices prefer the wording "undo"; experts prefer "reset".
+  reset-commit       = reset --soft HEAD~1
+  reset-commit-hard  = reset --hard HEAD~1
+  reset-commit-clean = !git reset --hard HEAD~1 && git clean -fd
+  reset-to-pristine  = !git reset --hard && git clean -ffdx
+  reset-to-upstream  = !git reset --hard $(git upstream-name)
+
+  unstage = reset HEAD
+
+  # Expunge a file everywhere; this command is typically for a serious problem,
+  # such as accidentally committing a file of sensitive data, such as passwords.
+  # After you use command, you will likely need to force push everything.
+  # See https://help.github.com/articles/removing-sensitive-data-from-a-repository/
+  expunge = !"f() { git filter-branch --force --index-filter \"git rm --cached --ignore-unmatch $1\" --prune-empty --tag-name-filter cat -- --all }; f"
+
+# Editing and adding conflicted files: when we get many merge conflicts
+  # and want to quickly solve them using an editor, then add the  files.
+  edit-unmerged = !"f() { git ls-files --unmerged | cut -f2 | sort -u ; }; `git var GIT_EDITOR` `f`"
+  add-unmerged  = !"f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add `f`"
+
+  # Work In Progress: from https://gist.github.com/492227 and VonC on stackoverflow.
+  # This enables a quick way to add all new and modified files to the index,
+  # while cleaning the index from the files removed from the working tree;
+  # this cleaning will facilitate a rebase, because there won't be any conflict
+  # due to an "unclean" working directory (not in sync with the index).
+  # The unwip will restore the deleted files to the working tree.
+  wip = !"git add --all; git ls-files --deleted -z | xargs -0 git rm; git commit --message=wip"
+  unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
+
+  # Assume
+  #
+  # Sometimes we want to change a file in a repo, but never check in your edits.
+  # We can't use .gitignore because the file is tracked. We use update-index.
+  #
+  # If you interact with big corporate projects, such as projects in Subversion,
+  # then you might run into the need to ignore certain files which are under
+  # Subversion control, yet you need to modify them but not commit.
+  # The assume-unchanged flag comes to the rescue.
+  #
+  # Suppose we want to edit passwords.txt and for god's sake never check it in:
+  #
+  #     $ git status
+  #     modified passwords.txt
+  #     modified foo.txt
+  #
+  #     $ git assume passwords.txt
+  #     $ git status
+  #     modified foo.txt
+  #
+  #     $ git assumed
+  #     passwords.txt
+  #
+  #     $ git unassume passwords.txt
+  #     $ git status
+  #     modified passwords.txt
+  #     modified foo.txt
+  #
+  # Thanks to http://durdn.com/blog/2012/11/22/must-have-git-aliases-advanced-examples/
+  # Thanks to http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+  assume   = update-index --assume-unchanged
+  unassume = update-index --no-assume-unchanged
+  assume-all = "!git st -s | awk {'print $2'} | xargs git assume"
+  unassume-all = "!git assumed | xargs git update-index --no-assume-unchanged"
+  assumed  = !"git ls-files -v | grep ^h | cut -c 3-"
+  
+    # Delete all branches that have already been merged into the default branch.
+  default-cleanse = !git default-cleanse-local; git default-cleanse-remote
+  # Delete all local branches that have been merged into the local default branch.
+  default-cleanse-local = "!git checkout $(git defaultBranch) && git branch --merged | xargs git branch --delete"
+  # Delete all remote branches that have been merged into the remote default branch.
+  default-cleanse-remote = !"git branch --remotes --merged origin/$(git defaultBranch) | sed 's# *origin/##' | grep -v '^$(git defaultBranch)$' xargs -I% git push origin :% 2>&1 | grep --colour=never 'deleted'"
+
+  # Publish the current branch by pushing it to the remote "origin",
+  # and setting the current branch to track the upstream branch.
+  publish = !"git push --set-upstream origin $(git branch-name)"
+
+  # Unpublish the current branch by deleting the
+  # remote version of the current branch.
+  unpublish = !"git push origin :$(git branch-name)"
+
+  # Delete a branch name, then create the same branch name based on the default -
+  # useful if you have, for example, a development branch and default branch
+  # and they go out of sync, and you want to nuke the development branch.
+  #
+  # Calls the `publish` and `unpublish` aliases.
+  #
+  reincarnate = !"f() { [[ -n $@ ]] && git checkout \"$@\" && git unpublish && git checkout $(git defaultBranch) && git branch -D \"$@\" && git checkout -b \"$@\" && git publish; }; f"
+
+  # Friendly wording is easier to remember.
+  # Thanks to http://gggritso.com/human-git-aliases
+  branches = branch -a
+  tags = tag -n1 --list
+  stashes = stash list
+  
+  ### SHELL SCRIPTING ALIASES ###
+  # Get the top level directory name
+  top-name = rev-parse --show-toplevel
+  # Get the current branch name
+  branch-name = rev-parse --abbrev-ref HEAD
+  # Get the upstream branch name
+  upstream-name = !git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD)
+  # Execute shell scripts. Git always runs scripts in the top directory.
+  # For example "git exec pwd" will always show you the top directory.
+  exec = ! exec
+  
+    ### MAINTENANCE ALIASES ###
+  # pruner: prune everything that is unreachable now.
+  #
+  # This command takes a long time to run, perhaps even overnight.
+  #
+  # This is useful for removing unreachable objects from all places.
+  #
+  # By [CodeGnome](http://www.codegnome.com/)
+  #
+  pruner = !"git prune --expire=now; git reflog expire --expire-unreachable=now --rewrite --all"
+  # repacker: repack a repo the way Linus recommends.
+  #
+  # This command takes a long time to run, perhaps even overnight.
+  #
+  # It does the equivalent of "git gc --aggressive"
+  # but done *properly*,  which is to do something like:
+  #
+  #     git repack -a -d --depth=250 --window=250
+  #
+  # The depth setting is about how deep the delta chains can be;
+  # make them longer for old history - it's worth the space overhead.
+  #
+  # The window setting is about how big an object window we want
+  # each delta candidate to scan.
+  #
+  # And here, you might well want to add the "-f" flag (which is
+  # the "drop all old deltas", since you now are actually trying
+  # to make sure that this one actually finds good candidates.
+  #
+  # And then it's going to take forever and a day (ie a "do it overnight"
+  # thing). But the end result is that everybody downstream from that
+  # repository will get much better packs, without having to spend any effort
+  # on it themselves.
+  #
+  # http://metalinguist.wordpress.com/2007/12/06/the-woes-of-git-gc-aggressive-and-how-git-deltas-work/
+  #
+  # We also add the --window-memory limit of 1 gig, which helps protect
+  # us from a window that has very large objects such as binary blobs.
+  #
+  repacker = repack -a -d -f --depth=300 --window=300 --window-memory=1g
+  # Do everything we can to optimize the repository.
+  #
+  # This command takes a long time to run, perhaps even overnight.
+  #
+  # Currently, this command simply calls `git pruner` and `git repacker`.
+  # There's a step that may be unnecessarying, calling `git prune-pack`.
+  #
+  optimize = !git pruner; git repacker; git prune-packed
+
+  # Search for a given string in all patches and print commit messages.
+  # Posted by Mikko Rantalainen on StackOverflow.
+  #
+  # Example: search for any commit that adds or removes string "foobar"
+  #     git searchcommits foobar
+  #
+  # Example: search commits for string "foobar" in directory src/lib
+  #     git searchcommits foobar src/lib
+  #
+  # Example: search commits for "foobar", print full diff of commit with 1 line context
+  #     git searchcommits foobar --pickaxe-all -U1 src/lib
+  searchcommits = !"f() { query=\"$1\"; shift; git log -S\"$query\" \"$@\"; }; f \"$@\""
+
