@@ -221,7 +221,7 @@ chsh -s $(which fish)
 
 ### iTerm
 echo "Configuring iTerm"
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfiles/iterm2"
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/.dotfiles/iterm2"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ### Setup CotEdtior
