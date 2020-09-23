@@ -61,6 +61,7 @@ if ask "Do you want to clear all dock icons?"; then
 fi
 
 casksToInstall=(
+    "1password-cli"
     "font-iosevka"
     "font-iosevka-slab"
     "font-input"
@@ -177,7 +178,6 @@ formulaeToInstall=(
     "bat"
     "exa"
     "jq"
-    "1password-cli"
 )
 
 for target in $formulaeToInstall; do
