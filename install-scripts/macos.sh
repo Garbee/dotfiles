@@ -38,8 +38,8 @@ ask() {
 
         # Check if the reply is valid
         case "$reply" in
-            Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
+        Y* | y*) return 0 ;;
+        N* | n*) return 1 ;;
         esac
 
     done
@@ -49,7 +49,11 @@ ask() {
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until the install script has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+done 2>/dev/null &
 
 if ask "Do you want to clear all dock icons?"; then
     defaults write com.apple.dock persistent-apps -array
@@ -57,7 +61,6 @@ if ask "Do you want to clear all dock icons?"; then
 fi
 
 casksToInstall=(
-    "1password-beta"
     "font-iosevka"
     "font-iosevka-slab"
     "font-input"
@@ -75,12 +78,12 @@ casksToInstall=(
     "forklift"
     "mission-control-plus"
     "fsmonitor"
-    "soundsource"
     "focusatwill"
     "sony-ps4-remote-play"
     "typora"
     "geekbench"
     "notion"
+    "altair-graphql-client"
 )
 
 if ask "Do you want to install App Tamer?"; then
@@ -98,6 +101,10 @@ fi
 
 if ask "Do you want to install Open Broadcast Studio?"; then
     casksToInstall+=("obs")
+fi
+
+if ask "Do you want to install Monitor Control?"; then
+    casksToInstall+=("monitorcontrol")
 fi
 
 # Make temp folder for holding some files
@@ -120,11 +127,11 @@ defaults write com.apple.finder ShowStatusBar -bool true
 chflags nohidden ~/Library
 
 # Enable developer options in Safari
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true && \
-defaults write com.apple.Safari IncludeDevelopMenu -bool true && \
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true && \
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true && \
-defaults write -g WebKitDeveloperExtras -bool true
+defaults write com.apple.Safari IncludeInternalDebugMenu -bool true &&
+    defaults write com.apple.Safari IncludeDevelopMenu -bool true &&
+    defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true &&
+    defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true &&
+    defaults write -g WebKitDeveloperExtras -bool true
 
 # Global preference modifications
 
@@ -142,8 +149,8 @@ mkdir -p $HOME/bin
 mkdir -p $HOME/.ssh
 
 # Install Homebrew
-if ! command -v brew &> /dev/null; then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+if ! command -v brew &>/dev/null; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 fi
 
 # Install brewed software
@@ -155,11 +162,11 @@ brew tap homebrew/cask-fonts
 brew tap homebrew/cask-drivers
 
 formulaeToInstall=(
-	"node"
-	"coreutils"
-	"git"
-	"mas"
-	"fish"
+    "node"
+    "coreutils"
+    "git"
+    "mas"
+    "fish"
     "git-flow"
     "git-delta"
     "git-quick-stats"
@@ -174,33 +181,44 @@ formulaeToInstall=(
 )
 
 for target in $formulaeToInstall; do
-	brew list $target &> /dev/null || brew install $target
+    brew list $target &>/dev/null || brew install $target
 done
 
 for target in $casksToInstall; do
-	brew cask list $target &> /dev/null || brew cask install $target
+    brew cask list $target &>/dev/null || brew cask install $target
 done
 
 # Install AppStore Content
 
 appStoreApps=()
 
+appStoreApps+=("1333542190") # 1Password
+appStoreApps+=("973134470")  # Be Focused
+appStoreApps+=("1513574319") # Glances
+appStoreApps+=("1512570906") # Flow Chart Designer 3
+appStoreApps+=("1470168007") # Vectornator Pro
+appStoreApps+=("1482490089") # Tampermonkey
+appStoreApps+=("1107421413") # 1Blocker
+appStoreApps+=("1452453066") # Hidden Bar
+appStoreApps+=("803453959")  # Slack
+appStoreApps+=("1397180934") # Dark mode for Safari
+appStoreApps+=("441258766")  # Magnet
 appStoreApps+=("1024640650") # CotEditor
 appStoreApps+=("1157491961") # PLIST Editor
-appStoreApps+=("567740330") # JSON Editor
-appStoreApps+=("639968404") # Parcel
+appStoreApps+=("567740330")  # JSON Editor
+appStoreApps+=("639968404")  # Parcel
 appStoreApps+=("1435957248") # Drafts
 appStoreApps+=("1195426709") # Sequence Diagram
 appStoreApps+=("1399498094") # WebSocket Client
-appStoreApps+=("470158793") # Keka
+appStoreApps+=("470158793")  # Keka
 appStoreApps+=("1006087419") # SnippetsLab
 appStoreApps+=("1233861775") # Acorn
 appStoreApps+=("1224268771") # Screens
-appStoreApps+=("979299240") # Network Kit X
-appStoreApps+=("411643860") # DaisyDisk
-appStoreApps+=("409203825") # Numbers
-appStoreApps+=("409201541") # Pages
-appStoreApps+=("409183694") # Keynote
+appStoreApps+=("979299240")  # Network Kit X
+appStoreApps+=("411643860")  # DaisyDisk
+appStoreApps+=("409203825")  # Numbers
+appStoreApps+=("409201541")  # Pages
+appStoreApps+=("409183694")  # Keynote
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -208,14 +226,16 @@ done
 
 ## Configurations
 
-### Git
-echo "Configuring git"
-ln -s ~/.dotfiles/git/gitconfig ~/.gitconfig
+if [ ! -f $HOME/.gitconfig ]; then
+    ### Git
+    echo "Configuring git"
+    ln -s $HOME/.dotfiles/git/gitconfig $HOME/.gitconfig
+fi
 
 ### Fish Shell
 echo "Configuring Fish Shell"
 echo $(which fish) | sudo tee -a /etc/shells
-chsh -s $(which fish)
+sudo chsh -s $(which fish) $USER
 
 ### iTerm
 echo "Configuring iTerm"
@@ -302,10 +322,11 @@ defaults write com.apple.commerce AutoUpdate -bool true
 defaults write -g NSFileViewer -string com.binarynights.forklift-setapp
 defaults write com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers -array-add '{LSHandlerContentType="public.folder";LSHandlerRoleAll="com.binarynights.forklift-setapp";}'
 
-### Setup Depot Tools
-echo "Installing depot tools"
-git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/bin/depot_tools
-
+if [ ! -d $HOME/bin/depot_tools ]; then
+    ### Setup Depot Tools
+    echo "Installing depot tools"
+    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/bin/depot_tools
+fi
 
 if [ ! -f $HOME/.iterm2_shell_integration.fish ]; then
     http --output $HOME/.iterm2_shell_integration.fish https://iterm2.com/shell_integration/fish
