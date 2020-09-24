@@ -237,6 +237,14 @@ for appId in $appStoreApps; do
     mas install "$appId"
 done
 
+hostsPrefPath=/Library/PreferencePanes/Hosts.prefPane
+
+if [ ! -d $hostsPrefPath ]; then
+    curl -O https://www.dirk-froehling.de/resources/Software/Hosts-PrefPane-1.4.5.pkg
+    sudo installer -pkg Hosts-PrefPane-1.4.5.pkg -target /
+    rm Hosts-PrefPane-1.4.5.pkg
+fi
+
 ## Configurations
 
 if [ ! -f $HOME/.gitconfig ]; then
