@@ -3,6 +3,9 @@
 # Make ZSH not care about end of line comments when running the script
 setopt interactive_comments
 
+# Path to main dotfile folder. We know the install script is located one directory under. So get script path then get it's dir then parent.
+dotfilePath=${$0:A:h:h}
+
 # Silence any MoTD or "last login" message when starting a shell
 if [ ! -f $HOME/.hushlogin ]; then
     touch $HOME/.hushlogin
@@ -58,6 +61,14 @@ done 2>/dev/null &
 if ask "Do you want to clear all dock icons?"; then
     defaults write com.apple.dock persistent-apps -array
     killAll Dock
+fi
+
+if ask "Do you need the display override for Hackintosh One?"; then
+    vendorPath=DisplayVendorID-1e6d
+    productFile=DisplayProductID-7707
+    libraryPath=/Library/Displays/Contents/Resources/Overrides/$vendorPath
+    sudo mkdir -p $libraryPath
+    sudo cp $dotfilePath/$vendorPath/$productFile $libraryPath/$productFile
 fi
 
 casksToInstall=(
@@ -239,7 +250,7 @@ sudo chsh -s $(which fish) $USER
 
 ### iTerm
 echo "Configuring iTerm"
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/.dotfiles/iterm2"
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/.dotfiles/iterm"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ### Setup CotEdtior

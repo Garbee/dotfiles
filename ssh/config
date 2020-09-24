@@ -7,10 +7,15 @@ ServerAliveCountMax 10
 Host bitbucket
   HostName bitbucket.org
   User git
+Host gh
+  HostName github.com
+  User git
+Host gl
+  HostName gitlab.com
+  User git
 Host github
   HostName github.com
   User git
 Host gitlab
   HostName gitlab.com
   User git
-
