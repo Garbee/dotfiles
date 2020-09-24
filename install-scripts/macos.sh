@@ -96,6 +96,8 @@ casksToInstall=(
     "geekbench"
     "notion"
     "altair-graphql-client"
+    "docker"
+    "visual-studio-code"
 )
 
 if ask "Do you want to install App Tamer?"; then
