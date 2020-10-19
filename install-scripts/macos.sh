@@ -79,6 +79,7 @@ casksToInstall=(
     "jetbrains-toolbox"
     "google-chrome"
     "google-chrome-canary"
+    "google-drive-file-stream"
     "dash"
     "kaleidoscope"
     "dash"
