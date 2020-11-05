@@ -4,7 +4,7 @@
 setopt interactive_comments
 
 # Path to main dotfile folder. We know the install script is located one directory under. So get script path then get it's dir then parent.
-dotfilePath=${$0:A:h:h}
+dotfilePath=$0:A:h:h
 
 # Silence any MoTD or "last login" message when starting a shell
 if [ ! -f $HOME/.hushlogin ]; then
@@ -78,7 +78,6 @@ casksToInstall=(
     "font-input"
     "jetbrains-toolbox"
     "google-chrome"
-    "google-chrome-canary"
     "google-drive-file-stream"
     "dash"
     "kaleidoscope"
@@ -99,6 +98,11 @@ casksToInstall=(
     "altair-graphql-client"
     "docker"
     "visual-studio-code"
+    "microsoft-edge"
+    "microsoft-edge-dev"
+    "firefox"
+    "firefox-developer-edition"
+    "google-chrome-canary"
 )
 
 if ask "Do you want to install App Tamer?"; then
@@ -207,6 +211,9 @@ done
 appStoreApps=()
 
 appStoreApps+=("1333542190") # 1Password
+appStoreApps+=("429449079")  # Patterns
+appStoreApps+=("1520907427") # Fluent Reader
+appStoreApps+=("1497506650") # Yubico Authenticator
 appStoreApps+=("973134470")  # Be Focused
 appStoreApps+=("1513574319") # Glances
 appStoreApps+=("1512570906") # Flow Chart Designer 3
