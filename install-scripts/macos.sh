@@ -95,7 +95,8 @@ casksToInstall=(
     "typora"
     "geekbench"
     "notion"
-    "altair-graphql-client"
+    "pitch"
+    "tunnelblick"
     "docker"
     "visual-studio-code"
     "microsoft-edge"
@@ -103,6 +104,7 @@ casksToInstall=(
     "firefox"
     "firefox-developer-edition"
     "google-chrome-canary"
+    "deepgit"
 )
 
 if ask "Do you want to install App Tamer?"; then
