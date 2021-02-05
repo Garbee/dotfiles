@@ -68,6 +68,8 @@ casksToInstall=(
     "font-iosevka"
     "font-iosevka-slab"
     "font-input"
+    "font-victor-mono"
+    "font-victor-mono-nerd-font"
     "jetbrains-toolbox"
     "google-chrome"
     "google-drive-file-stream"
@@ -88,9 +90,6 @@ casksToInstall=(
     "geekbench"
     "notion"
     "pitch"
-    "tunnelblick"
-    "docker"
-    "visual-studio-code"
     "microsoft-edge"
     "microsoft-edge-dev"
     "firefox"
@@ -103,21 +102,8 @@ if ask "Do you want to install App Tamer?"; then
     casksToInstall+=("app-tamer")
 fi
 
-if ask "Do you want to install Parallels?"; then
-    casksToInstall+=("parallels")
-fi
-
-if ask "Do you want to install game libraries (steam gog)?"; then
+if ask "Do you want to install steam?"; then
     casksToInstall+=("steam")
-    casksToInstall+=("gog-galaxy")
-fi
-
-if ask "Do you want to install Open Broadcast Studio?"; then
-    casksToInstall+=("obs")
-fi
-
-if ask "Do you want to install Monitor Control?"; then
-    casksToInstall+=("monitorcontrol")
 fi
 
 # Make temp folder for holding some files
@@ -262,7 +248,7 @@ sudo chsh -s $(which fish) $USER
 
 ### iTerm
 echo "Configuring iTerm"
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "$HOME/.dotfiles/iterm"
+defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfiles/iterm"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ### Setup CotEdtior
