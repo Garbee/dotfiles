@@ -63,14 +63,6 @@ if ask "Do you want to clear all dock icons?"; then
     killAll Dock
 fi
 
-if ask "Do you need the display override for Hackintosh One?"; then
-    vendorPath=DisplayVendorID-1e6d
-    productFile=DisplayProductID-7707
-    libraryPath=/Library/Displays/Contents/Resources/Overrides/$vendorPath
-    sudo mkdir -p $libraryPath
-    sudo cp $dotfilePath/$vendorPath/$productFile $libraryPath/$productFile
-fi
-
 casksToInstall=(
     "1password-cli"
     "font-iosevka"
