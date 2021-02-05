@@ -376,6 +376,12 @@ if [ ! -f "$FISH_CONFIG_FILE" ]; then
     ln -s $HOME/.dotfiles/config/fish/config.fish "$FISH_CONFIG_FILE"
 fi
 
+NVIM_CONFIG_FILE="$HOME/.config/nvim/init.vim"
+
+if [ ! -f "$NVIM_CONFIG_FILE" ]; then
+    ln -s $HOME/.dotfiles/config/nvim/init.vim "$NVIM_CONFIG_FILE"
+fi
+
 # Cleanup
 echo "Cleaning up"
 rm -rf $tempDir
