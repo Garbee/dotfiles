@@ -90,6 +90,7 @@ casksToInstall=(
     "firefox"
     "firefox-developer-edition"
     "google-chrome-canary"
+    "safari-technology-preview"
     "deepgit"
     "fork"
 )
@@ -109,6 +110,10 @@ fi
 
 if ask "Do you want to install steam?"; then
     casksToInstall+=("steam")
+fi
+
+if ask "Do you want to install Microsoft Office?"; then
+    casksToInstall+=("microsoft-office")
 fi
 
 # Make temp folder for holding some files
@@ -181,6 +186,7 @@ formulaeToInstall=(
     "bat"
     "exa"
     "jq"
+    "neovim"
 )
 
 for target in $formulaeToInstall; do
@@ -188,7 +194,7 @@ for target in $formulaeToInstall; do
 done
 
 for target in $casksToInstall; do
-    brew cask list $target &>/dev/null || brew cask install $target
+    brew list $target &>/dev/null || brew install --cask $target
 done
 
 # Install AppStore Content
@@ -200,9 +206,9 @@ appStoreApps+=("429449079")  # Patterns
 appStoreApps+=("1520907427") # Fluent Reader
 appStoreApps+=("1497506650") # Yubico Authenticator
 appStoreApps+=("973134470")  # Be Focused
-appStoreApps+=("1513574319") # Glances
+appStoreApps+=("1513574319") # Glance
 appStoreApps+=("1512570906") # Flow Chart Designer 3
-appStoreApps+=("1470168007") # Vectornator Pro
+appStoreApps+=("1219074514") # Vectornator Pro
 appStoreApps+=("1482490089") # Tampermonkey
 appStoreApps+=("1107421413") # 1Blocker
 appStoreApps+=("1452453066") # Hidden Bar
@@ -225,6 +231,10 @@ appStoreApps+=("411643860")  # DaisyDisk
 appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
+appStoreApps+=("1459055246") # Noto
+appStoreApps+=("1236045954") # Canary Mail
+appStoreApps+=("403504866") # PCalc
+appStoreApps+=("1444383602") # Good Notes
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -257,7 +267,7 @@ defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfile
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
 ### Setup CotEdtior
-defaults write -app CotEditor fontName "Iosevka"
+defaults write -app CotEditor fontName "Victor Mono"
 defaults write -app CotEditor fontSize 14
 defaults write -app CotEditor lineHeight 1.5
 defaults write -app CotEditor highlightCurrentLine -bool true
