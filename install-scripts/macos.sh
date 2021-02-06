@@ -72,22 +72,17 @@ casksToInstall=(
     "font-victor-mono-nerd-font"
     "jetbrains-toolbox"
     "google-chrome"
-    "google-drive-file-stream"
-    "dash"
-    "kaleidoscope"
     "dash"
     "iterm2"
     "alfred"
     "discord"
     "paw"
-    "airparrot"
-    "forklift"
+    "viscosity"
     "mission-control-plus"
     "fsmonitor"
     "focusatwill"
     "sony-ps4-remote-play"
     "typora"
-    "geekbench"
     "notion"
     "pitch"
     "microsoft-edge"
@@ -96,7 +91,17 @@ casksToInstall=(
     "firefox-developer-edition"
     "google-chrome-canary"
     "deepgit"
+    "fork"
 )
+
+if ask "Do you want to install Google Drive File Stream?";
+then
+    casksToInstall+=("google-drive-file-stream")
+fi
+
+if ask "Do you want to install Onedrive?"; then
+    casksToInstall+=("onedrive")
+fi
 
 if ask "Do you want to install App Tamer?"; then
     casksToInstall+=("app-tamer")
