@@ -116,6 +116,10 @@ if ask "Do you want to install Microsoft Office?"; then
     casksToInstall+=("microsoft-office")
 fi
 
+if ask "Do you want to install VMWare Fusion?"; then
+    casksToInstall+=("vmware-fusion")
+fi
+
 # Make temp folder for holding some files
 tempDir=$(mktemp -d)
 
