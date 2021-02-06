@@ -191,6 +191,7 @@ formulaeToInstall=(
     "exa"
     "jq"
     "neovim"
+    "prettyping"
 )
 
 for target in $formulaeToInstall; do
