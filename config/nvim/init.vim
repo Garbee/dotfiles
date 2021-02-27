@@ -29,6 +29,7 @@ Plug 'Shougo/deoplete.nvim'
 Plug 'Shougo/denite.nvim'
 "Plug 'neovim/nvim-lspconfig'
 Plug 'airblade/vim-gitgutter'
+Plug 'vim-syntastic/syntastic'
 
 call plug#end()
 
@@ -151,4 +152,22 @@ set expandtab
 
 " Update git gutter on save
 autocmd BufWritePost * GitGutter
+
+" Syntaastic config
+let g:syntastic_filetype_map = {
+            \ "javascriptreact": "javascript",
+            \ "typescriptreact": "typescript" }
+
+let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_typescript_checkers = ['eslint']
+
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
 
