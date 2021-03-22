@@ -129,9 +129,6 @@ echo "Configuring Global Settings"
 ## Install color schemes for Apple Color Picker
 curl -L -o ~/Library/Colors/Nord.clr https://raw.githubusercontent.com/arcticicestudio/nord/develop/src/swatches/Nord.clr
 
-# Enable AirDrop over Ethernet and on Unsupported Macs
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
-
 # Show the path bar
 defaults write com.apple.finder ShowPathbar -bool true
 # Show the status bar
@@ -346,10 +343,6 @@ defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
 
 # Turn on app auto-update
 defaults write com.apple.commerce AutoUpdate -bool true
-
-# Set Forklift as default file viewer where possible
-defaults write -g NSFileViewer -string com.binarynights.forklift-setapp
-defaults write com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers -array-add '{LSHandlerContentType="public.folder";LSHandlerRoleAll="com.binarynights.forklift-setapp";}'
 
 if [ ! -d $HOME/bin/depot_tools ]; then
     ### Setup Depot Tools
