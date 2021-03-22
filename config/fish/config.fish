@@ -53,7 +53,7 @@ abbr l "exa -lahF"
 # Easy way to get back to normal ls
 abbr lls "ls"
 # Much better ping view
-abbr ping "prettyping --no-legend"
+abbr ping "prettyping --nolegend"
 # Shorten getting process tree list
 abbr proctree "pstree -g 3"
 
@@ -83,4 +83,8 @@ set -U fish_pager_color_completion normal
 set -U fish_pager_color_description B3A06D yellow
 set -U fish_pager_color_prefix white --bold --underline
 set -U fish_pager_color_progress brwhite --background=cyan
+
+# PATH
+set -x PATH /opt/homebrew/bin $PATH
+set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
