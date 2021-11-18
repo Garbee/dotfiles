@@ -70,8 +70,19 @@ while true; do
     kill -0 "$$" || exit
 done 2>/dev/null &
 
+__dock_item() {
+    printf '%s%s%s%s%s' \
+        '<dict><key>tile-data</key><dict><key>file-data</key><dict>' \
+        '<key>_CFURLString</key><string>' \
+        "$1" \
+        '</string><key>_CFURLStringType</key><integer>0</integer>' \
+        '</dict></dict></dict>'
+}
+
 if ask "Do you want to clear all dock icons?" N; then
     defaults write com.apple.dock persistent-apps -array
+    defaults write com.apple.dock persistent-apps -array-add "$(__dock_item /System/Applications/Launchpad.app)"
+    defaults write com.apple.dock persistent-apps -array-add "$(__dock_item /Applications/Safari.app)"
     killAll Dock
 fi
 
@@ -141,6 +152,12 @@ mkdir -p "$HOME/.ssh"
 if ! command -v brew &>/dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 fi
+
+if ! grep -q 'eval $(/opt/homebrew/bin/brew shellenv)' "$HOME/.zprofile"; then
+    echo 'eval $(/opt/homebrew/bin/brew shellenv)' >> "$HOME/.zprofile"
+fi
+
+eval $(/opt/homebrew/bin/brew shellenv)
 
 # Bootstrapping 1Password
 
