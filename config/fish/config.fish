@@ -42,7 +42,7 @@ end
 
 source $HOME/.iterm2_shell_integration.(basename $SHELL)
 
-# Use bat for pretty quick output in termanal
+# Use bat for pretty quick output in terminal
 abbr cat "bat"
 # Easy way to get back to cat when needed
 abbr ccat "cat"
@@ -86,5 +86,4 @@ set -U fish_pager_color_progress brwhite --background=cyan
 
 # PATH
 set -x PATH /opt/homebrew/bin $PATH
-set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 

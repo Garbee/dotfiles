@@ -3,11 +3,9 @@
 [user]
 	name = Jonathan Garbee
 	email = jonathan@garbee.me
-[includeIf "gitdir:~/Code/Genesis/"]
-    path = ~/Code/Genesis/.gitconfig
 [core]
     pager = delta
-	excludesfile = /Users/jonathan/.gitignore_global
+	  excludesfile = /Users/jonathan/.gitignore_global
 [interactive]
     diffFilter = delta --color-only
 [delta]
@@ -508,11 +506,3 @@ f"
 
 [pull]
 	ff = only
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
-[commit]
-	template = /Users/jonathan/.stCommitMsg

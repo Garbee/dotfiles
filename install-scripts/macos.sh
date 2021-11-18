@@ -3,12 +3,24 @@
 # Make ZSH not care about end of line comments when running the script
 setopt interactive_comments
 
+echo "You will be prompted for information up until 1Password is logged into the CLI."
+
 # Path to main dotfile folder. We know the install script is located one directory under. So get script path then get it's dir then parent.
 dotfilePath=$0:A:h:h
 
+# Default 1Password config
+## Default email value to the current user's apple ID.
+pEmail=$(/usr/libexec/PlistBuddy -c "print :Accounts:0:AccountID" ~/Library/Preferences/MobileMeAccounts.plist)
+## Default to 1password hosted domain
+pDomain="my.1password.com"
+
+# UUIDs for some 1Password items used.
+sshPrivateKeyId="bajdcnjhfnazxjja3hn22sfuie"
+sshPublicKeyId="mw2c52gtjrcotgor67e645tv7m"
+
 # Silence any MoTD or "last login" message when starting a shell
-if [ ! -f $HOME/.hushlogin ]; then
-    touch $HOME/.hushlogin
+if [ ! -f "$HOME/.hushlogin" ]; then
+    touch "$HOME/.hushlogin"
 fi
 
 ask() {
@@ -58,13 +70,16 @@ while true; do
     kill -0 "$$" || exit
 done 2>/dev/null &
 
-if ask "Do you want to clear all dock icons?"; then
+if ask "Do you want to clear all dock icons?" N; then
     defaults write com.apple.dock persistent-apps -array
     killAll Dock
 fi
 
+if ask "Do you want to install Rosetta 2?" Y; then
+    softwareupdate --install-rosetta
+fi
+
 casksToInstall=(
-    "1password-cli"
     "font-iosevka"
     "font-iosevka-slab"
     "font-input"
@@ -72,53 +87,18 @@ casksToInstall=(
     "font-victor-mono-nerd-font"
     "jetbrains-toolbox"
     "google-chrome"
-    "dash"
     "iterm2"
     "alfred"
     "discord"
-    "paw"
-    "viscosity"
-    "mission-control-plus"
     "fsmonitor"
-    "focusatwill"
-    "sony-ps4-remote-play"
     "typora"
-    "notion"
     "pitch"
-    "microsoft-edge"
-    "microsoft-edge-dev"
-    "firefox"
-    "firefox-developer-edition"
-    "google-chrome-canary"
-    "safari-technology-preview"
     "deepgit"
-    "fork"
+    "steam"
+    "runescape"
+    "google-drive"
+    "ipvn"
 )
-
-if ask "Do you want to install Google Drive File Stream?";
-then
-    casksToInstall+=("google-drive-file-stream")
-fi
-
-if ask "Do you want to install Onedrive?"; then
-    casksToInstall+=("onedrive")
-fi
-
-if ask "Do you want to install App Tamer?"; then
-    casksToInstall+=("app-tamer")
-fi
-
-if ask "Do you want to install steam?"; then
-    casksToInstall+=("steam")
-fi
-
-if ask "Do you want to install Microsoft Office?"; then
-    casksToInstall+=("microsoft-office")
-fi
-
-if ask "Do you want to install VMWare Fusion?"; then
-    casksToInstall+=("vmware-fusion")
-fi
 
 # Make temp folder for holding some files
 tempDir=$(mktemp -d)
@@ -151,16 +131,51 @@ defaults write -g NSAutomaticCapitalizationEnabled -bool false
 defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
 
 ## Help 1Password Native integration with Canary
-mkdir -p $HOME/Library/Application Support/Google/Chrome/
+mkdir -p "$HOME/Library/Application Support/Google/Chrome/"
 
 ## Misc
-mkdir -p $HOME/Code
-mkdir -p $HOME/bin
-mkdir -p $HOME/.ssh
+mkdir -p "$HOME/Code"
+mkdir -p "$HOME/bin"
+mkdir -p "$HOME/.ssh"
 
 # Install Homebrew
 if ! command -v brew &>/dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+fi
+
+# Bootstrapping 1Password
+
+brew install mas
+
+if ! ask "Are you logged into the App Store?"; then
+    echo "Must be logged into App Store to complete installation.";
+    exit 1;
+fi
+
+mas install "1333542190" # 1Password
+brew install --cask "1password-cli"
+
+if ask "Do you want to sign into 1Password to setup SSH keys?" Y; then
+
+vared -p "What is your 1Password domain? " -c pDomain
+vared -p "What is your 1Password email? " -c pEmail
+
+echo "Initiating 1Password CLI signin"
+eval $(op signin "$pDomain" "$pEmail")
+
+SSH_PRIVATE_FILE="$HOME/.ssh/id_rsa"
+SSH_PUBLIC_FILE="$HOME/.ssh/id_rsa.pub"
+
+if [ ! -f "$SSH_PRIVATE_FILE" ]; then
+    op get document "$sshPrivateKeyId" > "$SSH_PRIVATE_FILE"
+    chmod 600 "$SSH_PRIVATE_FILE"
+fi
+
+if [ ! -f "$SSH_PUBLIC_FILE" ]; then
+    op get document "$sshPublicKeyId" > "$SSH_PUBLIC_FILE"
+    chmod 644 "$SSH_PUBLIC_FILE"
+fi
+
 fi
 
 # Install brewed software
@@ -203,40 +218,50 @@ done
 
 appStoreApps=()
 
-appStoreApps+=("1333542190") # 1Password
-appStoreApps+=("429449079")  # Patterns
-appStoreApps+=("1520907427") # Fluent Reader
-appStoreApps+=("1497506650") # Yubico Authenticator
-appStoreApps+=("973134470")  # Be Focused
-appStoreApps+=("1513574319") # Glance
-appStoreApps+=("1512570906") # Flow Chart Designer 3
-appStoreApps+=("1219074514") # Vectornator Pro
-appStoreApps+=("1482490089") # Tampermonkey
+# Safari Plugins
 appStoreApps+=("1107421413") # 1Blocker
+appStoreApps+=("1592917505") # Noir
+appStoreApps+=("1533805339") # Keepa - Price Tracker
+
+# Media
+appStoreApps+=("1484348796") # Endel
+
+# Utilities
+appStoreApps+=("1508732804") # Soulver 3
+appStoreApps+=("1513574319") # Glance
 appStoreApps+=("1452453066") # Hidden Bar
-appStoreApps+=("803453959")  # Slack
-appStoreApps+=("1397180934") # Dark mode for Safari
 appStoreApps+=("441258766")  # Magnet
-appStoreApps+=("1024640650") # CotEditor
-appStoreApps+=("1157491961") # PLIST Editor
-appStoreApps+=("567740330")  # JSON Editor
-appStoreApps+=("639968404")  # Parcel
-appStoreApps+=("1435957248") # Drafts
-appStoreApps+=("1195426709") # Sequence Diagram
-appStoreApps+=("1399498094") # WebSocket Client
 appStoreApps+=("470158793")  # Keka
-appStoreApps+=("1006087419") # SnippetsLab
-appStoreApps+=("1233861775") # Acorn
 appStoreApps+=("1224268771") # Screens
 appStoreApps+=("979299240")  # Network Kit X
 appStoreApps+=("411643860")  # DaisyDisk
+appStoreApps+=("1194883472") # File Peek
+
+# DevTools
+appStoreApps+=("1109319285") # SSH Config Editor
+appStoreApps+=("429449079")  # Patterns
+appStoreApps+=("1512570906") # Flow Chart Designer 3
+appStoreApps+=("1157491961") # PLIST Editor
+appStoreApps+=("567740330")  # JSON Editor
+appStoreApps+=("1195426709") # Sequence Diagram
+appStoreApps+=("1006087419") # SnippetsLab
+
+# Reference
+appStoreApps+=("403504866") # PCalc
+
+# Productivity
+appStoreApps+=("966085870")  # TickTick
 appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
-appStoreApps+=("1459055246") # Noto
-appStoreApps+=("1236045954") # Canary Mail
-appStoreApps+=("403504866") # PCalc
+appStoreApps+=("408981434")  # iMovie
+appStoreApps+=("824171161")  # Affinity Designer
+appStoreApps+=("881418622")  # Affinity Publisher
+appStoreApps+=("824183456")  # Affinity Photo
 appStoreApps+=("1444383602") # Good Notes
+
+# Education
+appStoreApps+=("1476088902") # Rosetta Stone
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -252,27 +277,27 @@ fi
 
 ## Configurations
 
-if [ ! -f $HOME/.gitconfig ]; then
+if [ ! -f "$HOME/.gitconfig" ]; then
     ### Git
     echo "Configuring git"
-    ln -s $HOME/.dotfiles/git/gitconfig $HOME/.gitconfig
+    ln -s "$HOME/.dotfiles/git/gitconfig" "$HOME/.gitconfig"
+fi
+
+if [ ! -f "$HOME/.ssh/config" ]; then
+     echo "Linking SSH Config"
+     ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
 fi
 
 ### Fish Shell
 echo "Configuring Fish Shell"
-echo $(which fish) | sudo tee -a /etc/shells
-sudo chsh -s $(which fish) $USER
+fishShellLocation="$(which fish)"
+echo "$fishShellLocation" | sudo tee -a /etc/shells
+sudo chsh -s "$fishShellLocation" "$USER"
 
 ### iTerm
 echo "Configuring iTerm"
 defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfiles/iterm"
 defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
-
-### Setup CotEdtior
-defaults write -app CotEditor fontName "Victor Mono"
-defaults write -app CotEditor fontSize 14
-defaults write -app CotEditor lineHeight 1.5
-defaults write -app CotEditor highlightCurrentLine -bool true
 
 # Disable automatic capitalization as it"s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -344,38 +369,38 @@ defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
 # Turn on app auto-update
 defaults write com.apple.commerce AutoUpdate -bool true
 
-if [ ! -d $HOME/bin/depot_tools ]; then
+if [ ! -d "$HOME/bin/depot_tools" ]; then
     ### Setup Depot Tools
     echo "Installing depot tools"
-    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/bin/depot_tools
+    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git "$HOME/bin/depot_tools"
 fi
 
-if [ ! -f $HOME/.iterm2_shell_integration.fish ]; then
-    http --output $HOME/.iterm2_shell_integration.fish https://iterm2.com/shell_integration/fish
+if [ ! -f "$HOME/.iterm2_shell_integration.fish" ]; then
+    http --output "$HOME/.iterm2_shell_integration.fish" https://iterm2.com/shell_integration/fish
 fi
 
-COMPLETION_DIR=$HOME/.config/fish/completions
-mkdir -p $COMPLETION_DIR
+COMPLETION_DIR="$HOME/.config/fish/completions"
+mkdir -p "$COMPLETION_DIR"
 
-if [ ! -f $COMPLETION_DIR/git-flow.fish ]; then
-    http --output $COMPLETION_DIR/git-flow.fish https://raw.githubusercontent.com/bobthecow/git-flow-completion/master/git.fish
+if [ ! -f "$COMPLETION_DIR/git-flow.fish" ]; then
+    http --output "$COMPLETION_DIR/git-flow.fish" https://raw.githubusercontent.com/bobthecow/git-flow-completion/master/git.fish
 fi
 
 FISH_CONFIG_FILE="$HOME/.config/fish/config.fish"
 
 if [ ! -f "$FISH_CONFIG_FILE" ]; then
-    ln -s $HOME/.dotfiles/config/fish/config.fish "$FISH_CONFIG_FILE"
+    ln -s "$dotfilePath/config/fish/config.fish" "$FISH_CONFIG_FILE"
 fi
 
 NVIM_CONFIG_FILE="$HOME/.config/nvim/init.vim"
 
 if [ ! -f "$NVIM_CONFIG_FILE" ]; then
-    ln -s $HOME/.dotfiles/config/nvim/init.vim "$NVIM_CONFIG_FILE"
+    ln -s "$dotfilePath/config/nvim/init.vim" "$NVIM_CONFIG_FILE"
 fi
 
 # Cleanup
 echo "Cleaning up"
-rm -rf $tempDir
+rm -rf "$tempDir"
 
 # Install XCode
 echo "Installing XCode"
