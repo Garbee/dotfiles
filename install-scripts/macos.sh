@@ -431,7 +431,3 @@ fi
 # Cleanup
 echo "Cleaning up"
 rm -rf "$tempDir"
-
-# Install XCode
-echo "Installing XCode"
-mas install 497799835
