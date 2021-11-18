@@ -118,9 +118,15 @@ tempDir=$(mktemp -d)
 # Configure global settings
 echo "Configuring Global Settings"
 
+# Turn off window tinting based on wallpaper
+defaults write .GlobalPreferences AppleReduceDesktopTinting -bool true
+
 ## Install color schemes for Apple Color Picker
 curl -L -o ~/Library/Colors/Nord.clr https://raw.githubusercontent.com/arcticicestudio/nord/develop/src/swatches/Nord.clr
 
+# Show seconds in clock
+defaults write com.apple.menuextra.clock ShowSeconds -bool true
+defaults write com.apple.menuextra.clock DateFormat "EEE MMM d  h:mm:ss a"
 # Show the path bar
 defaults write com.apple.finder ShowPathbar -bool true
 # Show the status bar
@@ -367,8 +373,14 @@ defaults write com.apple.dock autohide -bool true
 # Don"t show recent applications in Dock
 defaults write com.apple.dock show-recents -bool false
 
-# Enable Safari"s debug menu
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
+# Minimize apps to app icon
+defaults write com.apple.dock minimize-to-application -bool true
+
+# Magnify apps on hover
+defaults write com.apple.dock magnification -bool true
+
+# Enable Safari's debug menu
+defaults write .GlobalPreferences WebkitDeveloperExtras -bool true
 
 # Enable the Develop menu and the Web Inspector in Safari
 defaults write com.apple.Safari IncludeDevelopMenu -bool true
