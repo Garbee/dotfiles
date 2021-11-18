@@ -108,6 +108,8 @@ casksToInstall=(
     "runescape"
     "google-drive"
     "ivpn"
+    "contexts"
+    "fig"
 )
 
 # Make temp folder for holding some files
