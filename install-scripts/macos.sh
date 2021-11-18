@@ -85,7 +85,6 @@ casksToInstall=(
     "font-input"
     "font-victor-mono"
     "font-victor-mono-nerd-font"
-    "jetbrains-toolbox"
     "google-chrome"
     "iterm2"
     "alfred"
@@ -97,7 +96,7 @@ casksToInstall=(
     "steam"
     "runescape"
     "google-drive"
-    "ipvn"
+    "ivpn"
 )
 
 # Make temp folder for holding some files
@@ -219,7 +218,7 @@ done
 appStoreApps=()
 
 # Safari Plugins
-appStoreApps+=("1107421413") # 1Blocker
+appStoreApps+=("1365531024") # 1Blocker
 appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
 
