@@ -14,15 +14,18 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'Shougo/unite.vim'
 Plug 'sbdchd/neoformat'
 Plug 'scrooloose/nerdtree'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
 Plug 'leafgarland/typescript-vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'skywind3000/vim-terminal-help'
 Plug 'peitalin/vim-jsx-typescript'
 Plug 'LucHermitte/lh-vim-lib'
 Plug 'LucHermitte/local_vimrc'
 Plug 'HerringtonDarkholme/yats.vim'
+Plug 'ryanoasis/vim-devicons'
 " For async completion
 Plug 'Shougo/deoplete.nvim'
 " For Denite features
@@ -30,10 +33,11 @@ Plug 'Shougo/denite.nvim'
 "Plug 'neovim/nvim-lspconfig'
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-syntastic/syntastic'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
-call lh#local_vimrc#munge('whitelist', $HOME.'/Code/Genesis')
+let g:coc_global_extensions = ['coc-css', 'coc-html', 'coc-json', 'coc-tsserver']
 
 colorscheme nord
 let g:airline_theme='nord'
@@ -128,10 +132,17 @@ nmap <silent> <c-l> :wincmd l<CR>
 "nmap <C-@> <C-Space>
 nnoremap <silent> <Space> :NERDTreeToggle<CR>
 
-" ctrlp.vim
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_working_path_mode = ''
+" requires silversearcher-ag
+" used to ignore gitignore files
+let $FZF_DEFAULT_COMMAND = 'ag -g ""'
+
+" Fuzzy search
+nnoremap <C-p> :FZF<CR>
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-s': 'split',
+  \ 'ctrl-v': 'vsplit'
+  \}
 
 " Enable deoplete at startup
 let g:deoplete#enable_at_startup = 1
@@ -160,7 +171,6 @@ let g:syntastic_filetype_map = {
 
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_typescript_checkers = ['eslint']
-
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}

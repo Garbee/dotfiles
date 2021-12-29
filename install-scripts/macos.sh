@@ -94,8 +94,14 @@ casksToInstall=(
     "font-iosevka"
     "font-iosevka-slab"
     "font-input"
-    "font-victor-mono"
     "font-victor-mono-nerd-font"
+    "font-lexend"
+    "font-lexend-exa"
+    "font-lexend-giga"
+    "font-lexend-mega"
+    "font-lexend-peta"
+    "font-lexend-tera"
+    "font-lexend-zetta"
     "google-chrome"
     "iterm2"
     "alfred"
@@ -110,6 +116,9 @@ casksToInstall=(
     "ivpn"
     "contexts"
     "fig"
+    "intellij-idea"
+    "docker"
+    "secretive"
 )
 
 # Make temp folder for holding some files
@@ -228,6 +237,8 @@ formulaeToInstall=(
     "jq"
     "neovim"
     "prettyping"
+    "the_silver_searcher"
+    "fzf"
 )
 
 for target in $formulaeToInstall; do
@@ -425,8 +436,12 @@ fi
 NVIM_CONFIG_FILE="$HOME/.config/nvim/init.vim"
 
 if [ ! -f "$NVIM_CONFIG_FILE" ]; then
+    mkdir -p dirname $NVIM_CONFIG_FILE
     ln -s "$dotfilePath/config/nvim/init.vim" "$NVIM_CONFIG_FILE"
 fi
+
+echo "Installing pynvim for neovim plugins"
+python3 -m pip install --user --upgrade pynvim
 
 # Cleanup
 echo "Cleaning up"

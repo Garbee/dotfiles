@@ -87,3 +87,9 @@ set -U fish_pager_color_progress brwhite --background=cyan
 # PATH
 set -x PATH /opt/homebrew/bin $PATH
 
+# Secretive Daemon
+set -x SSH_AUTH_SOCK /Users/$USER/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+
+# Ignore gitignored locations in fuzzy search
+set -x FZF_DEFAULT_COMMAND 'ag -g ""'
+
