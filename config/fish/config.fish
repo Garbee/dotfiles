@@ -91,5 +91,5 @@ set -x PATH /opt/homebrew/bin $PATH
 set -x SSH_AUTH_SOCK /Users/$USER/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
 
 # Ignore gitignored locations in fuzzy search
-set -x FZF_DEFAULT_COMMAND 'ag -g ""'
+set -x FZF_DEFAULT_COMMAND 'ag --hidden --ignore .git -g ""'
 

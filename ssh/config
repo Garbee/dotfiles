@@ -4,6 +4,10 @@ TCPKeepAlive no
 ServerAliveInterval 60
 ServerAliveCountMax 10
 
+Host nc
+    HostName nexusconvention.com
+    User jonathan
+  IdentityFile ~/.ssh/id_rsa
 Host *
   IdentityAgent /Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
 Host bitbucket

@@ -10,13 +10,14 @@ endfunction
 
 call plug#begin()
 
+Plug 'itspriddle/vim-marked'
+Plug 'nikvdp/ejs-syntax'
 Plug 'arcticicestudio/nord-vim'
 Plug 'Shougo/unite.vim'
 Plug 'sbdchd/neoformat'
 Plug 'scrooloose/nerdtree'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
 Plug 'leafgarland/typescript-vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -27,7 +28,7 @@ Plug 'LucHermitte/local_vimrc'
 Plug 'HerringtonDarkholme/yats.vim'
 Plug 'ryanoasis/vim-devicons'
 " For async completion
-Plug 'Shougo/deoplete.nvim'
+" Plug 'Shougo/deoplete.nvim'
 " For Denite features
 Plug 'Shougo/denite.nvim'
 "Plug 'neovim/nvim-lspconfig'
@@ -134,7 +135,7 @@ nnoremap <silent> <Space> :NERDTreeToggle<CR>
 
 " requires silversearcher-ag
 " used to ignore gitignore files
-let $FZF_DEFAULT_COMMAND = 'ag -g ""'
+let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -g ""'
 
 " Fuzzy search
 nnoremap <C-p> :FZF<CR>
@@ -145,7 +146,7 @@ let g:fzf_action = {
   \}
 
 " Enable deoplete at startup
-let g:deoplete#enable_at_startup = 1
+" let g:deoplete#enable_at_startup = 1
 
 set list
 set listchars=eol:$,nbsp:_,tab:>-,trail:~,extends:>,precedes:<
