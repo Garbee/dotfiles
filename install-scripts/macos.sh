@@ -1,5 +1,13 @@
 #!/bin/zsh
 
+if [[ $(sw_vers -productVersion) == "12.4" ]]; then
+    isStable=true
+else
+    isStable=false
+fi
+
+exit
+
 # Make ZSH not care about end of line comments when running the script
 setopt interactive_comments
 
@@ -7,16 +15,6 @@ echo "You will be prompted for information up until 1Password is logged into the
 
 # Path to main dotfile folder. We know the install script is located one directory under. So get script path then get it's dir then parent.
 dotfilePath=$0:A:h:h
-
-# Default 1Password config
-## Default email value to the current user's apple ID.
-pEmail=$(/usr/libexec/PlistBuddy -c "print :Accounts:0:AccountID" ~/Library/Preferences/MobileMeAccounts.plist)
-## Default to 1password hosted domain
-pDomain="my.1password.com"
-
-# UUIDs for some 1Password items used.
-sshPrivateKeyId="bajdcnjhfnazxjja3hn22sfuie"
-sshPublicKeyId="mw2c52gtjrcotgor67e645tv7m"
 
 # Silence any MoTD or "last login" message when starting a shell
 if [ ! -f "$HOME/.hushlogin" ]; then
@@ -104,7 +102,7 @@ casksToInstall=(
     "font-lexend-zetta"
     "google-chrome"
     "iterm2"
-    "alfred"
+    "raycast"
     "discord"
     "fsmonitor"
     "typora"
@@ -112,14 +110,28 @@ casksToInstall=(
     "deepgit"
     "steam"
     "runescape"
-    "google-drive"
     "ivpn"
     "contexts"
     "fig"
-    "intellij-idea"
     "docker"
     "secretive"
+    "logitech-options"
+    "logitech-unifying"
+    "logitech-g-hub"
+    "audacity"
+    "elgato-stream-deck"
+    "elgato-wave-link"
+    "screenflow"
+    "openemu"
+    "monitorcontrol"
 )
+
+if isStable; then
+    casksToInstall+=("soundsource")
+    casksToInstall+=("audio-hijack")
+    casksToInstall+=("loopback")
+    casksToInstall+=("parallels")
+fi
 
 # Make temp folder for holding some files
 tempDir=$(mktemp -d)
@@ -144,11 +156,11 @@ defaults write com.apple.finder ShowStatusBar -bool true
 chflags nohidden ~/Library
 
 # Enable developer options in Safari
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true &&
-    defaults write com.apple.Safari IncludeDevelopMenu -bool true &&
-    defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true &&
-    defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true &&
-    defaults write -g WebKitDeveloperExtras -bool true
+defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+defaults write -g WebKitDeveloperExtras -bool true
 
 # Global preference modifications
 
@@ -156,9 +168,6 @@ defaults write com.apple.Safari IncludeInternalDebugMenu -bool true &&
 defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
 defaults write -g NSAutomaticCapitalizationEnabled -bool false
 defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
-
-## Help 1Password Native integration with Canary
-mkdir -p "$HOME/Library/Application Support/Google/Chrome/"
 
 ## Misc
 mkdir -p "$HOME/Code"
@@ -171,7 +180,7 @@ if ! command -v brew &>/dev/null; then
 fi
 
 if ! grep -q 'eval $(/opt/homebrew/bin/brew shellenv)' "$HOME/.zprofile"; then
-    echo 'eval $(/opt/homebrew/bin/brew shellenv)' >> "$HOME/.zprofile"
+    echo 'eval $(/opt/homebrew/bin/brew shellenv)' >>"$HOME/.zprofile"
 fi
 
 eval $(/opt/homebrew/bin/brew shellenv)
@@ -181,35 +190,12 @@ eval $(/opt/homebrew/bin/brew shellenv)
 brew install mas
 
 if ! ask "Are you logged into the App Store?"; then
-    echo "Must be logged into App Store to complete installation.";
-    exit 1;
+    echo "Must be logged into App Store to complete installation."
+    exit 1
 fi
 
-mas install "1333542190" # 1Password
+brew install --cask "1password"
 brew install --cask "1password-cli"
-
-if ask "Do you want to sign into 1Password to setup SSH keys?" Y; then
-
-vared -p "What is your 1Password domain? " -c pDomain
-vared -p "What is your 1Password email? " -c pEmail
-
-echo "Initiating 1Password CLI signin"
-eval $(op signin "$pDomain" "$pEmail")
-
-SSH_PRIVATE_FILE="$HOME/.ssh/id_rsa"
-SSH_PUBLIC_FILE="$HOME/.ssh/id_rsa.pub"
-
-if [ ! -f "$SSH_PRIVATE_FILE" ]; then
-    op get document "$sshPrivateKeyId" > "$SSH_PRIVATE_FILE"
-    chmod 600 "$SSH_PRIVATE_FILE"
-fi
-
-if [ ! -f "$SSH_PUBLIC_FILE" ]; then
-    op get document "$sshPublicKeyId" > "$SSH_PUBLIC_FILE"
-    chmod 644 "$SSH_PUBLIC_FILE"
-fi
-
-fi
 
 # Install brewed software
 echo "Installing homebrew software"
@@ -257,6 +243,7 @@ appStoreApps=()
 appStoreApps+=("1365531024") # 1Blocker
 appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
+appStoreApps+=("1482490089") # Tampermonkey
 
 # Media
 appStoreApps+=("1484348796") # Endel
@@ -276,8 +263,8 @@ appStoreApps+=("1194883472") # File Peek
 appStoreApps+=("1109319285") # SSH Config Editor
 appStoreApps+=("429449079")  # Patterns
 appStoreApps+=("1512570906") # Flow Chart Designer 3
-appStoreApps+=("1157491961") # PLIST Editor
-appStoreApps+=("567740330")  # JSON Editor
+appStoreApps+=("1559348223") # Power Plist Editor
+appStoreApps+=("499768540")  # Power JSON Editor
 appStoreApps+=("1195426709") # Sequence Diagram
 appStoreApps+=("1006087419") # SnippetsLab
 
@@ -285,7 +272,6 @@ appStoreApps+=("1006087419") # SnippetsLab
 appStoreApps+=("403504866") # PCalc
 
 # Productivity
-appStoreApps+=("966085870")  # TickTick
 appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
@@ -319,8 +305,8 @@ if [ ! -f "$HOME/.gitconfig" ]; then
 fi
 
 if [ ! -f "$HOME/.ssh/config" ]; then
-     echo "Linking SSH Config"
-     ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
+    echo "Linking SSH Config"
+    ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
 fi
 
 ### Fish Shell
