@@ -1,12 +1,4 @@
-#!/bin/zsh
-
-if [[ $(sw_vers -productVersion) == "12.4" ]]; then
-    isStable=true
-else
-    isStable=false
-fi
-
-exit
+#!/usr/bin/env zsh
 
 # Make ZSH not care about end of line comments when running the script
 setopt interactive_comments
@@ -89,8 +81,10 @@ if ask "Do you want to install Rosetta 2?" Y; then
 fi
 
 casksToInstall=(
+    "warp"
     "font-iosevka"
     "font-iosevka-slab"
+    "font-iosevka-nerd-font"
     "font-input"
     "font-victor-mono-nerd-font"
     "font-lexend"
@@ -101,37 +95,28 @@ casksToInstall=(
     "font-lexend-tera"
     "font-lexend-zetta"
     "google-chrome"
-    "iterm2"
     "raycast"
     "discord"
     "fsmonitor"
-    "typora"
-    "pitch"
-    "deepgit"
     "steam"
     "runescape"
     "ivpn"
     "contexts"
-    "fig"
     "docker"
-    "secretive"
-    "logitech-options"
-    "logitech-unifying"
     "logitech-g-hub"
     "audacity"
     "elgato-stream-deck"
-    "elgato-wave-link"
+    "logitech-g-hub"
     "screenflow"
     "openemu"
     "monitorcontrol"
+    "soundsource"
+    "audio-hijack"
+    "loopback"
+    "fission"
+    "parallels"
+    "warp"
 )
-
-if isStable; then
-    casksToInstall+=("soundsource")
-    casksToInstall+=("audio-hijack")
-    casksToInstall+=("loopback")
-    casksToInstall+=("parallels")
-fi
 
 # Make temp folder for holding some files
 tempDir=$(mktemp -d)
@@ -206,6 +191,7 @@ brew tap homebrew/cask-fonts
 brew tap homebrew/cask-drivers
 
 formulaeToInstall=(
+    "starship"
     "node"
     "coreutils"
     "git"
@@ -244,6 +230,7 @@ appStoreApps+=("1365531024") # 1Blocker
 appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
 appStoreApps+=("1482490089") # Tampermonkey
+appStoreApps+=("1569813296") # 1Password for Safari
 
 # Media
 appStoreApps+=("1484348796") # Endel
@@ -258,6 +245,9 @@ appStoreApps+=("1224268771") # Screens
 appStoreApps+=("979299240")  # Network Kit X
 appStoreApps+=("411643860")  # DaisyDisk
 appStoreApps+=("1194883472") # File Peek
+appStoreApps+=("1550403011") # iRightMouse Pro
+appStoreApps+=("1588708173") # Elsewhen
+appStoreApps+=("1569680330") # Rsyncinator
 
 # DevTools
 appStoreApps+=("1109319285") # SSH Config Editor
@@ -265,8 +255,9 @@ appStoreApps+=("429449079")  # Patterns
 appStoreApps+=("1512570906") # Flow Chart Designer 3
 appStoreApps+=("1559348223") # Power Plist Editor
 appStoreApps+=("499768540")  # Power JSON Editor
-appStoreApps+=("1195426709") # Sequence Diagram
+appStoreApps+=("1565766176") # Power YAML Editor
 appStoreApps+=("1006087419") # SnippetsLab
+appStoreApps+=("6444068649") # Codepoint
 
 # Reference
 appStoreApps+=("403504866") # PCalc
@@ -276,13 +267,17 @@ appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
 appStoreApps+=("408981434")  # iMovie
-appStoreApps+=("824171161")  # Affinity Designer
-appStoreApps+=("881418622")  # Affinity Publisher
-appStoreApps+=("824183456")  # Affinity Photo
-appStoreApps+=("1444383602") # Good Notes
+appStoreApps+=("1616831348")  # Affinity Designer 2
+appStoreApps+=("1606941598")  # Affinity Publisher 2
+appStoreApps+=("1616822987")  # Affinity Photo 2
+appStoreApps+=("1444383602") # GoodNotes
+appStoreApps+=("890031187") # Marked 2
+appStoreApps+=("1527036273") # Taio
+appStoreApps+=("1346203938") # Omnifocus
 
-# Education
-appStoreApps+=("1476088902") # Rosetta Stone
+# Recording Utilities
+appStoreApps+=("1572206224") # Keystroke Pro
+appStoreApps+=("1447043133") # Cursor Pro
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -309,16 +304,10 @@ if [ ! -f "$HOME/.ssh/config" ]; then
     ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
 fi
 
-### Fish Shell
-echo "Configuring Fish Shell"
-fishShellLocation="$(which fish)"
-echo "$fishShellLocation" | sudo tee -a /etc/shells
-sudo chsh -s "$fishShellLocation" "$USER"
-
-### iTerm
-echo "Configuring iTerm"
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.dotfiles/iterm"
-defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
+if [ ! -f "$HOME/.zshrc" ]; then
+    echo "Linking ZSH Config"
+    ln -s "$HOME/.dotfiles/config/zshrc" "$HOME/.zshrc"
+fi
 
 # Disable automatic capitalization as it"s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -396,38 +385,15 @@ defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
 # Turn on app auto-update
 defaults write com.apple.commerce AutoUpdate -bool true
 
-if [ ! -d "$HOME/bin/depot_tools" ]; then
-    ### Setup Depot Tools
-    echo "Installing depot tools"
-    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git "$HOME/bin/depot_tools"
-fi
-
-if [ ! -f "$HOME/.iterm2_shell_integration.fish" ]; then
-    http --output "$HOME/.iterm2_shell_integration.fish" https://iterm2.com/shell_integration/fish
-fi
-
-COMPLETION_DIR="$HOME/.config/fish/completions"
-mkdir -p "$COMPLETION_DIR"
-
-if [ ! -f "$COMPLETION_DIR/git-flow.fish" ]; then
-    http --output "$COMPLETION_DIR/git-flow.fish" https://raw.githubusercontent.com/bobthecow/git-flow-completion/master/git.fish
-fi
-
-FISH_CONFIG_FILE="$HOME/.config/fish/config.fish"
-
-if [ ! -f "$FISH_CONFIG_FILE" ]; then
-    ln -s "$dotfilePath/config/fish/config.fish" "$FISH_CONFIG_FILE"
-fi
-
-NVIM_CONFIG_FILE="$HOME/.config/nvim/init.vim"
-
-if [ ! -f "$NVIM_CONFIG_FILE" ]; then
-    mkdir -p dirname $NVIM_CONFIG_FILE
-    ln -s "$dotfilePath/config/nvim/init.vim" "$NVIM_CONFIG_FILE"
-fi
-
-echo "Installing pynvim for neovim plugins"
-python3 -m pip install --user --upgrade pynvim
+# Configure Warp Terminal
+defaults write dev.warp.Warp-Stable WelcomeTipsCompleted "true"
+defaults write dev.warp.Warp-Stable HonorPS1 "true"
+defaults write dev.warp.Warp-Stable FontName "Iosevka Nerd Font"
+defaults write dev.warp.Warp-Stable FontSize "14.0"
+defaults write dev.warp.Warp-Stable LineHeightRatio "1.5"
+defaults write dev.warp.Warp-Stable OpenFileEditor "VSCode"
+defaults write dev.warp.Warp-Stable Theme "Cyberwave"
+defaults write dev.warp.Warp-Stable EnforceMinimumContrast "Always"
 
 # Cleanup
 echo "Cleaning up"

@@ -5,7 +5,7 @@
 	email = jonathan@garbee.me
 [core]
     pager = delta
-	  excludesfile = /Users/jonathan/.gitignore_global
+    excludesfile = /Users/jonathan/.gitignore_global
 [interactive]
     diffFilter = delta --color-only
 [delta]
@@ -38,10 +38,10 @@
     sb = show-branch
     # clean everything to be pristine
     nuke = clean -ffdx
-    
+
     # Get default branch name as a helper for other aliases
     defaultBranch = config init.defaultBranch
-    
+
     ### submodule ###
     # submodule - enables foreign repositories to be embedded within a dedicated subdirectory of the source tree.
     sm = submodule
@@ -74,7 +74,7 @@
 
     patch = !git --no-pager diff --no-color
     ignored = ls-files --others --i --exclude-standard
-    
+
     # Last tag in the current branch
     lasttag = describe --tags --abbrev=0
 
@@ -103,8 +103,6 @@
     log-my-month = log --author $(git config user.email) --since=1-month-ago
     log-my-year  = log --author $(git config user.email) --since=1-year-ago
 
-    
-    
 # Attic for listing renamed and deleted files.
 # From: http://leahneukirchen.org/blog/archive/2013/01/a-grab-bag-of-git-tricks.html
 # attic [-M] [PATH] - list deleted files of Git repositories
@@ -113,17 +111,17 @@
     attic = "!f() { \
   git log --raw --no-renames --date=short --format=\"%h %cd" "$@\" | \
   awk '/^[0-9a-f]/ { commit=$1; date=$2 } \
-       /^:/ && $5 == \"D\" { print date, commit \"^:\" $6 }' | \
+      /^:/ && $5 == \"D\" { print date, commit \"^:\" $6 }' | \
   less; \
 }; \
 f"
 
 # From: http://leahneukirchen.org/blog/archive/2013/01/a-grab-bag-of-git-tricks.html
-# BUG: When running with remote (-r) on repos like Electron, 
+# BUG: When running with remote (-r) on repos like Electron,
 # awk fails since it will have too many files open.
 # This also exists in the original script, so it wasn't introduced converting it for here.
 # trail [-r] [-t] [COMMIT] - show all branching points in Git history
-   trail = "!f() { \
+    trail = "!f() { \
 [ \"$1\" = -r ] && shift || REMOTES=\"-e refs/remotes/\"; \
 [ \"$1\" = -t ] && shift || TAGS=\"-e refs/tags/\"; \
 COMMIT=$(git rev-parse --no-flags --default HEAD \"$@\"); \
@@ -261,7 +259,7 @@ f"
     printf \"\nMost-active dates, with commit count and %%...\n\"; git log-of-count-and-day | head -7; \
     printf \"\nMost-active files, with churn count\n\"; git churn | head -7; \
   }; f"
-  
+
     # Show the commit's keyword-marked lines.
   #
   # Show each line in the commit message that starts with zero or more blanks,
@@ -401,7 +399,7 @@ f"
   assume-all = "!git st -s | awk {'print $2'} | xargs git assume"
   unassume-all = "!git assumed | xargs git update-index --no-assume-unchanged"
   assumed  = !"git ls-files -v | grep ^h | cut -c 3-"
-  
+
     # Delete all branches that have already been merged into the default branch.
   default-cleanse = !git default-cleanse-local; git default-cleanse-remote
   # Delete all local branches that have been merged into the local default branch.
@@ -430,7 +428,7 @@ f"
   branches = branch -a
   tags = tag -n1 --list
   stashes = stash list
-  
+
   ### SHELL SCRIPTING ALIASES ###
   # Get the top level directory name
   top-name = rev-parse --show-toplevel
@@ -441,7 +439,7 @@ f"
   # Execute shell scripts. Git always runs scripts in the top directory.
   # For example "git exec pwd" will always show you the top directory.
   exec = ! exec
-  
+
     ### MAINTENANCE ALIASES ###
   # pruner: prune everything that is unreachable now.
   #
@@ -506,3 +504,8 @@ f"
 
 [pull]
 	ff = only
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
