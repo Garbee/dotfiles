@@ -102,7 +102,6 @@ casksToInstall=(
     "elgato-stream-deck"
     "screenflow"
     "openemu"
-    "monitorcontrol"
     "soundsource"
     "audio-hijack"
     "loopback"
