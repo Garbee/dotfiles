@@ -93,12 +93,13 @@ casksToInstall=(
     "font-lexend-peta"
     "font-lexend-tera"
     "font-lexend-zetta"
+    "font-monaspace"
+    "font-monaspace-nerd-font"
     "raycast"
     "discord"
     "fsmonitor"
     "steam"
     "contexts"
-    "docker"
     "elgato-stream-deck"
     "screenflow"
     "openemu"
@@ -108,6 +109,13 @@ casksToInstall=(
     "fission"
     "visual-studio-code"
     "signal"
+    "webstorm"
+    "goland"
+    "mps"
+    "datagrip"
+    "rapidapi"
+    "proxyman"
+    # Forklift?
 )
 
 # Make temp folder for holding some files
@@ -153,7 +161,7 @@ mkdir -p "$HOME/.ssh"
 
 # Install Homebrew
 if ! command -v brew &>/dev/null; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 if ! grep -q 'eval $(/opt/homebrew/bin/brew shellenv)' "$HOME/.zprofile"; then
@@ -188,6 +196,8 @@ formulaeToInstall=(
     "git-delta"
     "git-quick-stats"
     "gnupg"
+    "gh"
+    "go"
     "httpie"
     "pstree"
     "tldr"
@@ -208,6 +218,24 @@ done
 for target in $casksToInstall; do
     brew list $target &>/dev/null || brew install --cask $target
 done
+
+echo "Downloading Docker"
+dockerImagePath="$tempDir/Docker.dmg"
+curl --progress-bar -L -o "$dockerImagePath" https://desktop.docker.com/mac/main/arm64/Docker.dmg
+echo "Mounting Docker Installer"
+sudo hdiutil attach "$dockerImagePath" -quiet
+echo "Installing Docker"
+sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license --user=$USER
+echo "Unmounting installer"
+sudo hdiutil detach /Volumes/Docker
+rm "$dockerImagePath"
+
+if ask "Are you logged into 1Password with CLI integration active?" Y; then
+    # Place FSMonitor License in order to activate it.
+    op read "op://Software Licenses/FSMonitor - license.fsmonitorlicense/license.fsmonitorlicense" --out-file=/Users/Shared/FSMonitor/license.fsmonitorlicensefi
+    # Login to docker
+    op read "op://Personal/Docker Hub/Access Tokens/Personal Laptop" | docker login -u $(op read "op://Personal/Docker Hub/username") --password-stdin
+fi
 
 # Install AppStore Content
 
@@ -260,6 +288,8 @@ appStoreApps+=("1441250616") # Clean Email
 # DevTools
 appStoreApps+=("1578175415") # Codeface
 appStoreApps+=("1569680330") # Rsyncinator
+# Clobbr?
+# Silenz?
 
 for appId in $appStoreApps; do
     mas install "$appId"

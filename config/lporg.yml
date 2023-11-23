@@ -167,9 +167,13 @@ apps:
             - number: 1
               items:
                 - Visual Studio Code
+                - WebStorm
+                - GoLand
                 - Xcode
                 - Docker
                 - Alacritty
+                - RapidAPI
+                - Proxyman
                 - Codeface
                 - Power JSON Editor
                 - Power Plist Editor
@@ -177,6 +181,8 @@ apps:
                 - CotEditor
                 - Rsyncinator
                 - Marked 2
+                - MPS 2023.2
+                - DataGrip
         - folder: Trash
           pages:
             - number: 1

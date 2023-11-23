@@ -1,4 +1,6 @@
 autoload -U +X bashcompinit && bashcompinit
 
+eval "$(op completion zsh)"
+
 # Stay at end of file
 eval "$(starship init zsh)"
