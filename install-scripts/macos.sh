@@ -81,7 +81,6 @@ if ask "Do you want to install Rosetta 2?" Y; then
 fi
 
 casksToInstall=(
-    "warp"
     "font-iosevka"
     "font-iosevka-slab"
     "font-iosevka-nerd-font"
@@ -94,19 +93,13 @@ casksToInstall=(
     "font-lexend-peta"
     "font-lexend-tera"
     "font-lexend-zetta"
-    "google-chrome"
     "raycast"
     "discord"
     "fsmonitor"
     "steam"
-    "runescape"
-    "ivpn"
     "contexts"
     "docker"
-    "logitech-g-hub"
-    "audacity"
     "elgato-stream-deck"
-    "logitech-g-hub"
     "screenflow"
     "openemu"
     "monitorcontrol"
@@ -114,8 +107,8 @@ casksToInstall=(
     "audio-hijack"
     "loopback"
     "fission"
-    "parallels"
-    "warp"
+    "visual-studio-code"
+    "signal"
 )
 
 # Make temp folder for holding some files
@@ -155,7 +148,7 @@ defaults write -g NSAutomaticCapitalizationEnabled -bool false
 defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
 
 ## Misc
-mkdir -p "$HOME/Code"
+mkdir -p "$HOME/Developer"
 mkdir -p "$HOME/bin"
 mkdir -p "$HOME/.ssh"
 
@@ -183,20 +176,15 @@ brew install --cask "1password"
 brew install --cask "1password-cli"
 
 # Install brewed software
-echo "Installing homebrew software"
-
-brew tap homebrew/cask
-brew tap homebrew/cask-versions
+echo "Tapping"
 brew tap homebrew/cask-fonts
-brew tap homebrew/cask-drivers
+echo "Installing homebrew software"
 
 formulaeToInstall=(
     "starship"
     "node"
     "coreutils"
     "git"
-    "mas"
-    "fish"
     "git-flow"
     "git-delta"
     "git-quick-stats"
@@ -211,6 +199,7 @@ formulaeToInstall=(
     "prettyping"
     "the_silver_searcher"
     "fzf"
+    "blacktop/tap/lporg"
 )
 
 for target in $formulaeToInstall; do
@@ -231,53 +220,47 @@ appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
 appStoreApps+=("1482490089") # Tampermonkey
 appStoreApps+=("1569813296") # 1Password for Safari
+appStoreApps+=("6449850851") # Privacy
+appStoreApps+=("1534275760") # LanguageTool
+appStoreApps+=("1622835804") # Kagi
+appStoreApps+=("1615431236") # Bonjourr Startpage
+appStoreApps+=("6449850851") # Privacy.com for Safari
 
 # Media
 appStoreApps+=("1484348796") # Endel
 
 # Utilities
 appStoreApps+=("1508732804") # Soulver 3
-appStoreApps+=("1513574319") # Glance
 appStoreApps+=("1452453066") # Hidden Bar
 appStoreApps+=("441258766")  # Magnet
 appStoreApps+=("470158793")  # Keka
-appStoreApps+=("1224268771") # Screens
-appStoreApps+=("979299240")  # Network Kit X
 appStoreApps+=("411643860")  # DaisyDisk
-appStoreApps+=("1194883472") # File Peek
-appStoreApps+=("1550403011") # iRightMouse Pro
 appStoreApps+=("1588708173") # Elsewhen
-appStoreApps+=("1569680330") # Rsyncinator
+appStoreApps+=("403504866")  # PCalc
 
 # DevTools
-appStoreApps+=("1109319285") # SSH Config Editor
-appStoreApps+=("429449079")  # Patterns
-appStoreApps+=("1512570906") # Flow Chart Designer 3
 appStoreApps+=("1559348223") # Power Plist Editor
 appStoreApps+=("499768540")  # Power JSON Editor
 appStoreApps+=("1565766176") # Power YAML Editor
-appStoreApps+=("1006087419") # SnippetsLab
 appStoreApps+=("6444068649") # Codepoint
-
-# Reference
-appStoreApps+=("403504866") # PCalc
+appStoreApps+=("1024640650") # CotEditor
 
 # Productivity
+appStoreApps+=("1515324201") # Planny
 appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
 appStoreApps+=("408981434")  # iMovie
-appStoreApps+=("1616831348")  # Affinity Designer 2
-appStoreApps+=("1606941598")  # Affinity Publisher 2
-appStoreApps+=("1616822987")  # Affinity Photo 2
-appStoreApps+=("1444383602") # GoodNotes
-appStoreApps+=("890031187") # Marked 2
+appStoreApps+=("1616831348") # Affinity Designer 2
+appStoreApps+=("1606941598") # Affinity Publisher 2
+appStoreApps+=("1616822987") # Affinity Photo 2
+appStoreApps+=("890031187")  # Marked 2
 appStoreApps+=("1527036273") # Taio
-appStoreApps+=("1346203938") # Omnifocus
+appStoreApps+=("1441250616") # Clean Email
 
-# Recording Utilities
-appStoreApps+=("1572206224") # Keystroke Pro
-appStoreApps+=("1447043133") # Cursor Pro
+# DevTools
+appStoreApps+=("1578175415") # Codeface
+appStoreApps+=("1569680330") # Rsyncinator
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -385,15 +368,31 @@ defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
 # Turn on app auto-update
 defaults write com.apple.commerce AutoUpdate -bool true
 
-# Configure Warp Terminal
-defaults write dev.warp.Warp-Stable WelcomeTipsCompleted "true"
-defaults write dev.warp.Warp-Stable HonorPS1 "true"
-defaults write dev.warp.Warp-Stable FontName "Iosevka Nerd Font"
-defaults write dev.warp.Warp-Stable FontSize "14.0"
-defaults write dev.warp.Warp-Stable LineHeightRatio "1.5"
-defaults write dev.warp.Warp-Stable OpenFileEditor "VSCode"
-defaults write dev.warp.Warp-Stable Theme "Cyberwave"
-defaults write dev.warp.Warp-Stable EnforceMinimumContrast "Always"
+## GAMES
+# appStoreGames+=("564196178") # The Witcher 2
+
+appStoreGames=()
+
+appStoreGames+=("1626348601") # Inscryption
+appStoreGames+=("1671189271") # Lumencraft
+appStoreGames+=("1471313227") # The Pillar
+appStoreGames+=("1406390771") # Old Man's Journey
+appStoreGames+=("1203245278") # Kenshō
+appStoreGames+=("408054320")  # Osmos
+appStoreGames+=("416608891")  # Knights of the Old Republic
+appStoreGames+=("960778634")  # Star Wars®: Knights of the Old Republic™ II
+appStoreGames+=("509542875")  # The Witcher: Enhanced Edition
+appStoreGames+=("564196178")  # The Witcher 2
+appStoreGames+=("1087338873") # Divinity - Original Sin Enhanced Edition
+appStoreGames+=("1441532941") # Divinity - Original Sin 2
+
+for appId in $appStoreGames; do
+    mas install "$appId"
+done
+
+cd $HOME/.dotfiles
+git remote set-url origin git@github.com:Garbee/dotfiles.git
+cd $HOME
 
 # Cleanup
 echo "Cleaning up"
