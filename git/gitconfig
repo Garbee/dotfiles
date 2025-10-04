@@ -3,9 +3,11 @@
 [user]
 	name = Jonathan Garbee
 	email = jonathan@garbee.me
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJO/dCNRm/nTYFV8rlpC8tQGdQaByMv2prCC6UZdAOO0
 [core]
     pager = delta
     excludesfile = /Users/jonathan/.gitignore_global
+	fsmonitor = true
 [interactive]
     diffFilter = delta --color-only
 [delta]
@@ -509,3 +511,21 @@ f"
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
+[includeIf "gitdir:~/Developer/Deque/"]
+	path = ~/Developer/Deque/gitconfig
+[merge]
+	tool = juxta
+[diff]
+	tool = juxta
+[mergetool "juxta"]
+	cmd = juxta _mergetool --base \"${BASE:-/dev/null}\" --local \"$LOCAL\" --remote \"$REMOTE\" --merged \"${MERGED:-/dev/null}\"
+	trustExitCode = true
+[difftool "juxta"]
+	cmd = juxta _difftool --local \"$LOCAL\" --remote \"$REMOTE\" --merged \"$MERGED\"
+	trustExitCode = true

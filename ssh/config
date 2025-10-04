@@ -4,27 +4,7 @@ ServerAliveCountMax 10
 
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-Host nc
-    HostName nexusconvention.com
-    User jonathan
-    IdentityFile ~/.ssh/personal.pub
-    IdentitiesOnly yes
-Host bitbucket
-  HostName bitbucket.org
-  User git
-Host gh
-  HostName github.com
-  IdentitiesOnly yes
-  IdentityFile ~/.ssh/personal.pub
-  User git
-Host gl
-  HostName gitlab.com
-  User git
-Host github
-  HostName github.com
-  IdentityFile ~/.ssh/personal.pub
-  IdentitiesOnly yes
-  User git
-Host gitlab
-  HostName gitlab.com
-  User git
+Include ~/.ssh/1Password/config
+
+Host *
+	IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
