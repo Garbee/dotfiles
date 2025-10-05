@@ -147,32 +147,6 @@ defaults write com.apple.dock "show-recents" -bool "false"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock magnification -bool true
 
-set -u
-
-PLIST="$HOME/Library/Preferences/com.apple.dock.plist"
-BUDDY="/usr/libexec/PlistBuddy"
-
-defaults read com.apple.dock >/dev/null 2>&1 || true
-
-if $BUDDY -c "Print persistent-apps" "$PLIST" >/dev/null 2>&1; then
-  COUNT=$($BUDDY -c "Print persistent-apps" "$PLIST" 2>/dev/null | grep -c "Dict")
-else
-  COUNT=0
-fi
-
-INDEX=0
-while [ $INDEX -lt $COUNT ]; do
-  LABEL=$($BUDDY -c "Print persistent-apps:$INDEX:tile-data:file-label" "$PLIST" 2>/dev/null || echo "")
-
-  if [[ "$LABEL" != "Safari" ]]; then
-    $BUDDY -c "Delete persistent-apps:$INDEX" "$PLIST"
-    COUNT=$((COUNT-1))
-    INDEX=$((INDEX-1))
-  fi
-
-  INDEX=$((INDEX+1))
-done
-
 killall Dock
 
 # Finder prefs
@@ -250,7 +224,6 @@ fi
 echo "Installing homebrew software"
 
 formulaeToInstall=(
-    "fish"
     "node"
     "coreutils"
     "git"
@@ -271,20 +244,6 @@ formulaeToInstall=(
     "the_silver_searcher"
     "fzf"
     "harper"
-    "font-iosevka"
-    "font-iosevka-slab"
-    "font-iosevka-nerd-font"
-    "font-input"
-    "font-victor-mono-nerd-font"
-    "font-lexend"
-    "font-lexend-exa"
-    "font-lexend-giga"
-    "font-lexend-mega"
-    "font-lexend-peta"
-    "font-lexend-tera"
-    "font-lexend-zetta"
-    "font-monaspace"
-    "font-monaspace-nerd-font"
     "discord"
     "visual-studio-code"
     "rapidapi"
@@ -310,7 +269,7 @@ appStoreApps=()
 appStoreApps+=("1365531024") # 1Blocker
 appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
-appStoreApps+=("1482490089") # Tampermonkey
+appStoreApps+=("6738342400") # Tampermonkey
 appStoreApps+=("1569813296") # 1Password for Safari
 appStoreApps+=("6449850851") # Privacy
 appStoreApps+=("1622835804") # Kagi
@@ -327,6 +286,9 @@ appStoreApps+=("470158793")  # Keka
 appStoreApps+=("411643860")  # DaisyDisk
 appStoreApps+=("1588708173") # Elsewhen
 appStoreApps+=("403504866")  # PCalc
+appStoreApps+=("937984704") # Amphetamine
+appStoreApps+=("510365488") # PD (Download Manager)
+appStoreApps+=("1596706466") # Speediness
 
 # DevTools
 appStoreApps+=("1559348223") # Power Plist Editor
@@ -342,10 +304,8 @@ appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
 appStoreApps+=("408981434")  # iMovie
 appStoreApps+=("890031187")  # Marked 2
-appStoreApps+=("1583719331") # Lunatask
 appStoreApps+=("1663047912") # Screens 5
 appStoreApps+=("1522267256") # Shareful
-appStoreApps+=("975937182") # Fantastical
 
 for appId in $appStoreApps; do
     mas install "$appId"
@@ -372,9 +332,6 @@ fi
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-which fish | sudo tee -a /etc/shells
-chsh -s "$(which fish)" "$USER"
-
 cd $HOME/.dotfiles
 git remote set-url origin git@github.com:Garbee/dotfiles.git
 cd $HOME
@@ -384,7 +341,7 @@ echo "Cleaning up"
 rm -rf "$tempDir"
 
 # Manual Tasks
-cat <<<EOF
+cat <<'EOF'
 Setup is now complete.
 There are a few manual tasks to finish so things are fully functional.
 
