@@ -252,6 +252,7 @@ formulaeToInstall=(
     "chatgpt"
     "iterm2"
     "latest"
+    "secretive"
 )
 
 for target in $formulaeToInstall; do
