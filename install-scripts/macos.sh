@@ -60,15 +60,6 @@ while true; do
     kill -0 "$$" || exit
 done 2>/dev/null &
 
-__dock_item() {
-    printf '%s%s%s%s%s' \
-        '<dict><key>tile-data</key><dict><key>file-data</key><dict>' \
-        '<key>_CFURLString</key><string>' \
-        "$1" \
-        '</string><key>_CFURLStringType</key><integer>0</integer>' \
-        '</dict></dict></dict>'
-}
-
 if ask "Do you want to install Rosetta 2?" Y; then
     softwareupdate --install-rosetta
 fi
@@ -108,70 +99,9 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Avoid creating .DS_Store files on network or USB volumes
-defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
-
-# Enable AirDrop over Ethernet and on unsupported Macs running Lion
-defaults write com.apple.NetworkBrowser BrowseAllInterfaces -bool true
-
-# Set the icon size of Dock items to 36 pixels
-defaults write com.apple.dock tilesize -int 36
-
-# Don"t automatically rearrange Spaces based on most recent use
-defaults write com.apple.dock mru-spaces -bool false
-
-# Prevent Time Machine from prompting to use new hard drives as backup volume
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-# Check for software updates daily, not just once per week
-defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
-
-# Download newly available updates in background
-defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
-
-# Turn on app auto-update
-defaults write com.apple.commerce AutoUpdate -bool true
-
-# Change screenshot save location
-screenhot_location="~/Pictures/Screenshots"
-defaults write com.apple.iphonesimulator "ScreenShotSaveLocation" -string "$screenhot_location"
-defaults write com.apple.screencapture "location" -string "$screenhot_location"
-defaults write com.apple.screencapture "include-date" -bool "false"
-killall SystemUIServer
-
-# Dock settings
-defaults write com.apple.dock minimize-to-application -bool true
-defaults write com.apple.dock "mineffect" -string "genie"
-defaults write com.apple.dock "show-recents" -bool "false"
-defaults write com.apple.dock autohide -bool true
-defaults write com.apple.dock magnification -bool true
-
-killall Dock
-
 # Finder prefs
-defaults write com.apple.finder "ShowHardDrivesOnDesktop" -bool "false"
-defaults write com.apple.finder "ShowExternalHardDrivesOnDesktop" -bool "false"
-defaults write com.apple.finder "ShowRemovableMediaOnDesktop" -bool "false"
-defaults write com.apple.finder "ShowMountedServersOnDesktop" -bool "false"
-defaults write com.apple.finder "FXEnableExtensionChangeWarning" -bool "false"
-defaults write com.apple.finder "FXDefaultSearchScope" -string "SCcf"
-defaults write com.apple.finder "_FXSortFoldersFirst" -bool "true"
-defaults write com.apple.finder "FXPreferredViewStyle" -string "Nlsv"
-defaults write com.apple.finder "AppleShowAllFiles" -bool "true"
-defaults write NSGlobalDomain "AppleShowAllExtensions" -bool "true"
-defaults write com.apple.finder ShowPathbar -bool true
-defaults write com.apple.finder ShowStatusBar -bool true
 chflags nohidden ~/Library && xattr -d com.apple.FinderInfo ~/Library
 sudo chflags nohidden /Volumes
-killall Finder
-
-# Enable developer options in Safari
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
-defaults write -g WebKitDeveloperExtras -bool true
 
 # Global preference modifications
 
@@ -253,6 +183,9 @@ formulaeToInstall=(
     "iterm2"
     "latest"
     "secretive"
+    "osaurus"
+    "obsidian"
+    "zed"
 )
 
 for target in $formulaeToInstall; do
