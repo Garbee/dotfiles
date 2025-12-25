@@ -3,7 +3,7 @@
 [user]
 	name = Jonathan Garbee
 	email = jonathan@garbee.me
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJO/dCNRm/nTYFV8rlpC8tQGdQaByMv2prCC6UZdAOO0
+	signingkey = /Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/f7ee9bd0946dc4e7d24682702ca87c62.pub
 [core]
     pager = delta
     excludesfile = /Users/jonathan/.gitignore_global
@@ -514,7 +514,7 @@ f"
 [gpg]
 	format = ssh
 [gpg "ssh"]
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	allowedSignersFile = ~/.gitallowedsigners
 [commit]
 	gpgsign = true
 [includeIf "gitdir:~/Developer/Deque/"]

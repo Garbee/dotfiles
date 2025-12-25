@@ -4,21 +4,11 @@ compinit
 
 export PATH="$HOME/.local/bin:$PATH"
 
-eval "$(op completion zsh)"; compdef _op op
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 eval "$(starship init zsh)"
-
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/jonathan/.lmstudio/bin"
-# End of LM Studio CLI section
-
-
-. "$HOME/.local/bin/env"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 

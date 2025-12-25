@@ -3,8 +3,6 @@ ServerAliveInterval 60
 ServerAliveCountMax 10
 
 Host *
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-Include ~/.ssh/1Password/config
-
-Host *
-	IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    IdentityAgent /Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+Host storage-tower.local
+    IdentityFile /Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/a1054a6b0fd8c834ccecf07d251dff5a.pub

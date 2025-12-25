@@ -3,8 +3,6 @@
 # Make ZSH not care about end of line comments when running the script
 setopt interactive_comments
 
-echo "You will be prompted for information up until 1Password is logged into the CLI."
-
 # Path to main dotfile folder. We know the install script is located one directory under. So get script path then get it's dir then parent.
 dotfilePath=$0:A:h:h
 
@@ -126,17 +124,12 @@ fi
 
 eval $(/opt/homebrew/bin/brew shellenv)
 
-# Bootstrapping 1Password
-
 brew install mas
 
 if ! ask "Are you logged into the App Store?"; then
     echo "Must be logged into App Store to complete installation."
     exit 1
 fi
-
-brew install --cask "1password"
-brew install --cask "1password-cli"
 
 if ask "Install Docker?" Y; then
     echo "Downloading Docker"
@@ -165,7 +158,7 @@ formulaeToInstall=(
     "go"
     "httpie"
     "pstree"
-    "tldr"
+    "tlrc"
     "bat"
     "exa"
     "jq"
@@ -176,16 +169,13 @@ formulaeToInstall=(
     "harper"
     "discord"
     "visual-studio-code"
-    "rapidapi"
-    "proxyman"
-    "macwhisper"
-    "chatgpt"
     "iterm2"
     "latest"
     "secretive"
     "osaurus"
     "obsidian"
     "zed"
+    "juxtacode"
 )
 
 for target in $formulaeToInstall; do
@@ -204,8 +194,6 @@ appStoreApps+=("1365531024") # 1Blocker
 appStoreApps+=("1592917505") # Noir
 appStoreApps+=("1533805339") # Keepa - Price Tracker
 appStoreApps+=("6738342400") # Tampermonkey
-appStoreApps+=("1569813296") # 1Password for Safari
-appStoreApps+=("6449850851") # Privacy
 appStoreApps+=("1622835804") # Kagi
 appStoreApps+=("1615431236") # Bonjourr Startpage
 
@@ -214,21 +202,19 @@ appStoreApps+=("1346247457") # Endel
 appStoreApps+=("1436994560") # Portal
 
 # Utilities
-appStoreApps+=("1508732804") # Soulver 3
+# Wait for next update, use testflight until then. appStoreApps+=("1508732804") # Soulver 3
 appStoreApps+=("1452453066") # Hidden Bar
 appStoreApps+=("470158793")  # Keka
 appStoreApps+=("411643860")  # DaisyDisk
 appStoreApps+=("1588708173") # Elsewhen
 appStoreApps+=("403504866")  # PCalc
 appStoreApps+=("937984704") # Amphetamine
-appStoreApps+=("510365488") # PD (Download Manager)
 appStoreApps+=("1596706466") # Speediness
 
 # DevTools
 appStoreApps+=("1559348223") # Power Plist Editor
 appStoreApps+=("499768540")  # Power JSON Editor
 appStoreApps+=("1565766176") # Power YAML Editor
-appStoreApps+=("1024640650") # CotEditor
 appStoreApps+=("1569680330") # Rsyncinator
 appStoreApps+=("6446933691") # Postico 2
 
@@ -236,7 +222,6 @@ appStoreApps+=("6446933691") # Postico 2
 appStoreApps+=("409203825")  # Numbers
 appStoreApps+=("409201541")  # Pages
 appStoreApps+=("409183694")  # Keynote
-appStoreApps+=("408981434")  # iMovie
 appStoreApps+=("890031187")  # Marked 2
 appStoreApps+=("1663047912") # Screens 5
 appStoreApps+=("1522267256") # Shareful
@@ -263,6 +248,11 @@ if [ ! -f "$HOME/.zshrc" ]; then
     ln -s "$HOME/.dotfiles/config/zshrc" "$HOME/.zshrc"
 fi
 
+if [ ! -f "$HOME/.zshenv" ]; then
+    echo "Linking ZSH Env"
+    ln -s "$HOME/.dotfiles/config/zshenv" "$HOME/.zshenv"
+fi
+
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
@@ -287,9 +277,6 @@ The following should be granted permissions:
    * Terminal
    * Visual Studio Code
    * Zed
-* Accessibility
-   * 1Password
-   * MacWhisper
 * App Management
    * Iterm2
    * Terminal
