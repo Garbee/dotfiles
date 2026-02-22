@@ -131,26 +131,12 @@ if ! ask "Are you logged into the App Store?"; then
     exit 1
 fi
 
-if ask "Install Docker?" Y; then
-    echo "Downloading Docker"
-    dockerImagePath="$tempDir/Docker.dmg"
-    curl --progress-bar -L -o "$dockerImagePath" https://desktop.docker.com/mac/main/arm64/Docker.dmg
-    echo "Mounting Docker Installer"
-    sudo hdiutil attach "$dockerImagePath" -quiet
-    echo "Installing Docker"
-    sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license --user=$USER
-    echo "Unmounting installer"
-    sudo hdiutil detach /Volumes/Docker
-    rm "$dockerImagePath"
-fi
-
 echo "Installing homebrew software"
 
 formulaeToInstall=(
     "node"
     "coreutils"
     "git"
-    "git-flow"
     "git-delta"
     "git-quick-stats"
     "gnupg"
@@ -176,6 +162,11 @@ formulaeToInstall=(
     "obsidian"
     "zed"
     "juxtacode"
+    "orbstack"
+    "unifi-identity-endpoint"
+    "emclient"
+    "antigravity"
+    "bruno"
 )
 
 for target in $formulaeToInstall; do
@@ -202,7 +193,7 @@ appStoreApps+=("1346247457") # Endel
 appStoreApps+=("1436994560") # Portal
 
 # Utilities
-# Wait for next update, use testflight until then. appStoreApps+=("1508732804") # Soulver 3
+appStoreApps+=("1508732804") # Soulver 3
 appStoreApps+=("1452453066") # Hidden Bar
 appStoreApps+=("470158793")  # Keka
 appStoreApps+=("411643860")  # DaisyDisk
@@ -219,9 +210,10 @@ appStoreApps+=("1569680330") # Rsyncinator
 appStoreApps+=("6446933691") # Postico 2
 
 # Productivity
-appStoreApps+=("409203825")  # Numbers
-appStoreApps+=("409201541")  # Pages
-appStoreApps+=("409183694")  # Keynote
+# Update with Creator Studio IDs.
+# appStoreApps+=("409203825")  # Numbers
+# appStoreApps+=("409201541")  # Pages
+# appStoreApps+=("409183694")  # Keynote
 appStoreApps+=("890031187")  # Marked 2
 appStoreApps+=("1663047912") # Screens 5
 appStoreApps+=("1522267256") # Shareful
@@ -240,6 +232,7 @@ fi
 
 if [ ! -f "$HOME/.ssh/config" ]; then
     echo "Linking SSH Config"
+    mkdir -p "$HOME/.ssh"
     ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
 fi
 
