@@ -1,19 +1,30 @@
-autoload -U +X bashcompinit && bashcompinit
-autoload -Uz compinit
-compinit
+alias claude='claude --allow-dangerously-skip-permissions'
+alias pmux='tmux new-session -A -s primary' # Reattach to or start the primary session
 
-export PATH="$HOME/.local/bin:$PATH"
+# Auto-start the "primary" tmux session, except inside IDE terminals
+# (Zed, IntelliJ, VS Code) or when already inside tmux. In Ghostty, only
+# the first tab auto-attaches: later tabs see a client already attached
+# to the primary session and skip.
+if [[ -o interactive && -z "$TMUX" ]] \
+  && [[ "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "zed" ]] \
+  && [[ "$TERMINAL_EMULATOR" != "JetBrains-JediTerm" ]] \
+  && command -v tmux >/dev/null \
+  && ! { [[ "$TERM_PROGRAM" == "ghostty" ]] \
+         && tmux list-clients -t primary 2>/dev/null | grep -q .; }; then
+  exec tmux new-session -A -s primary
+fi
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+# opencode
+export PATH=/Users/jonathan/.opencode/bin:$PATH
 
+if [ -f ~/.zshrc.local ]; then
+  # An override to give local settings.
+  source ~/.zshrc.local
+fi
+
+# Enable zsh's completion system — picks up Homebrew-installed completions
+# (starship, gh, git, eza, ...) from /opt/homebrew/share/zsh/site-functions
+autoload -Uz compinit && compinit
+
+# Starship prompt (must come after compinit)
 eval "$(starship init zsh)"
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/jonathan/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions

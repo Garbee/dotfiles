@@ -58,8 +58,26 @@ while true; do
     kill -0 "$$" || exit
 done 2>/dev/null &
 
-if ask "Do you want to install Rosetta 2?" Y; then
-    softwareupdate --install-rosetta
+# Rosetta is installed if an x86_64 binary can run
+if ! arch -x86_64 /usr/bin/true 2>/dev/null; then
+    if ask "Do you want to install Rosetta 2?" Y; then
+        softwareupdate --install-rosetta
+    fi
+fi
+
+installUnifiIdentityEndpoint=false
+if ask "Do you want to install UniFi Identity Endpoint?" N; then
+    installUnifiIdentityEndpoint=true
+fi
+
+installOrbstack=false
+if ask "Do you want to install OrbStack?" N; then
+    installOrbstack=true
+fi
+
+installSecretive=false
+if ask "Do you want to install Secretive?" Y; then
+    installSecretive=true
 fi
 
 # Make temp folder for holding some files
@@ -72,11 +90,16 @@ echo "Configuring Global Settings"
 defaults write .GlobalPreferences AppleReduceDesktopTinting -bool true
 
 ## Install color schemes for Apple Color Picker
-curl -L -o ~/Library/Colors/Nord.clr https://raw.githubusercontent.com/arcticicestudio/nord/develop/src/swatches/Nord.clr
+if [ ! -f "$HOME/Library/Colors/Nord.clr" ]; then
+    mkdir -p "$HOME/Library/Colors"
+    curl -fsSL -o "$HOME/Library/Colors/Nord.clr" https://raw.githubusercontent.com/arcticicestudio/nord/develop/src/swatches/Nord.clr
+fi
 
-# Show seconds in clock
+# Menu bar clock: seconds, AM/PM, day of week; date only when space allows
 defaults write com.apple.menuextra.clock ShowSeconds -bool true
-defaults write com.apple.menuextra.clock DateFormat "EEE MMM d  h:mm:ss a"
+defaults write com.apple.menuextra.clock ShowAMPM -bool true
+defaults write com.apple.menuextra.clock ShowDayOfWeek -bool true
+defaults write com.apple.menuextra.clock ShowDate -int 0
 
 # Disable automatic capitalization as it"s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -97,34 +120,106 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
+# Show all file extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Dark mode (best-effort via defaults; fully applies after next login)
+defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+defaults write NSGlobalDomain AppleIconAppearanceTheme -string "RegularDark"
+
+# Dock
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock magnification -bool true
+defaults write com.apple.dock largesize -int 128
+defaults write com.apple.dock tilesize -int 36
+defaults write com.apple.dock minimize-to-application -bool true
+defaults write com.apple.dock show-recents -bool false
+# Disable bottom-right Quick Note hot corner
+defaults write com.apple.dock wvous-br-corner -int 1
+
+# Trackpad (settings mirrored to built-in and Bluetooth domains;
+# fully apply after next login)
+defaults write -g com.apple.trackpad.scaling -float 1
+defaults write -g com.apple.trackpad.forceClick -bool true
+for trackpadDomain in com.apple.AppleMultitouchTrackpad com.apple.driver.AppleBluetoothMultitouch.trackpad; do
+    # Tap to click off, medium click firmness, force click on
+    defaults write $trackpadDomain Clicking -bool false
+    defaults write $trackpadDomain FirstClickThreshold -int 1
+    defaults write $trackpadDomain SecondClickThreshold -int 1
+    defaults write $trackpadDomain ForceSuppressed -bool false
+    # Secondary click with two fingers, not corner click
+    defaults write $trackpadDomain TrackpadRightClick -bool true
+    defaults write $trackpadDomain TrackpadCornerSecondaryClick -int 0
+    # Disable look up on three-finger tap and three-finger drag
+    defaults write $trackpadDomain TrackpadThreeFingerTapGesture -int 0
+    defaults write $trackpadDomain TrackpadThreeFingerDrag -bool false
+    # Scroll and zoom gestures
+    defaults write $trackpadDomain TrackpadScroll -bool true
+    defaults write $trackpadDomain TrackpadHorizScroll -bool true
+    defaults write $trackpadDomain TrackpadMomentumScroll -bool true
+    defaults write $trackpadDomain TrackpadPinch -bool true
+    defaults write $trackpadDomain TrackpadRotate -bool true
+    defaults write $trackpadDomain TrackpadTwoFingerDoubleTapGesture -bool true
+    # Mission Control, full-screen swipes, Launchpad, and Notification Center gestures
+    defaults write $trackpadDomain TrackpadThreeFingerHorizSwipeGesture -int 2
+    defaults write $trackpadDomain TrackpadThreeFingerVertSwipeGesture -int 2
+    defaults write $trackpadDomain TrackpadFourFingerHorizSwipeGesture -int 2
+    defaults write $trackpadDomain TrackpadFourFingerVertSwipeGesture -int 2
+    defaults write $trackpadDomain TrackpadFourFingerPinchGesture -int 2
+    defaults write $trackpadDomain TrackpadFiveFingerPinchGesture -int 2
+    defaults write $trackpadDomain TrackpadTwoFingerFromRightEdgeSwipeGesture -int 3
+done
+
 # Finder prefs
-chflags nohidden ~/Library && xattr -d com.apple.FinderInfo ~/Library
+chflags nohidden ~/Library
+# The xattr may already be gone, which xattr -d treats as an error
+xattr -d com.apple.FinderInfo ~/Library 2>/dev/null || true
 sudo chflags nohidden /Volumes
 
-# Global preference modifications
+# Show hidden files
+defaults write com.apple.finder AppleShowAllFiles -bool true
+defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowStatusBar -bool true
+# Default to column view
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+# Auto-empty trash after 30 days
+defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+# New windows open in Home
+defaults write com.apple.finder NewWindowTarget -string "PfHm"
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
 
-## Keyboard
-defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
-defaults write -g NSAutomaticCapitalizationEnabled -bool false
-defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
+# Restart affected apps so settings take effect
+killall Dock 2>/dev/null || true
+killall Finder 2>/dev/null || true
+killall ControlCenter 2>/dev/null || true
 
 ## Misc
-mkdir -p "$HOME/Developer"
-mkdir -p "$HOME/bin"
-mkdir -p "$HOME/.ssh"
+if [[ ! -d "$HOME/Developer" ]]; then
+    mkdir -p "$HOME/Developer"
+fi
+
+if [[ ! -d "$HOME/bin" ]]; then
+    mkdir -p "$HOME/bin"
+fi
+
+if [[ ! -d "$HOME/.ssh" ]]; then
+    mkdir -p "$HOME/.ssh"
+fi
 
 # Install Homebrew
 if ! command -v brew &>/dev/null; then
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-if ! grep -q 'eval $(/opt/homebrew/bin/brew shellenv)' "$HOME/.zprofile"; then
+if ! grep -qsF 'eval $(/opt/homebrew/bin/brew shellenv)' "$HOME/.zprofile"; then
     echo 'eval $(/opt/homebrew/bin/brew shellenv)' >>"$HOME/.zprofile"
 fi
 
 eval $(/opt/homebrew/bin/brew shellenv)
 
-brew install mas
+if ! brew list mas &>/dev/null; then
+    brew install mas
+fi
 
 if ! ask "Are you logged into the App Store?"; then
     echo "Must be logged into App Store to complete installation."
@@ -133,41 +228,21 @@ fi
 
 echo "Installing homebrew software"
 
-formulaeToInstall=(
-    "node"
-    "coreutils"
-    "git"
-    "git-delta"
-    "git-quick-stats"
-    "gnupg"
-    "gh"
-    "go"
-    "httpie"
-    "pstree"
-    "tlrc"
-    "bat"
-    "exa"
-    "jq"
-    "neovim"
-    "prettyping"
-    "the_silver_searcher"
-    "fzf"
-    "harper"
-    "discord"
-    "visual-studio-code"
-    "iterm2"
-    "latest"
-    "secretive"
-    "osaurus"
-    "obsidian"
-    "zed"
-    "juxtacode"
-    "orbstack"
-    "unifi-identity-endpoint"
-    "emclient"
-    "antigravity"
-    "bruno"
-)
+source "$dotfilePath/install-scripts/formulae.sh"
+
+formulaeToInstall=("${crossPlatformFormulae[@]}" "${macosOnlyFormulae[@]}")
+
+if [ "$installSecretive" = true ]; then
+    formulaeToInstall+=("secretive") # SSH keys in Secure Enclave
+fi
+
+if [ "$installUnifiIdentityEndpoint" = true ]; then
+    formulaeToInstall+=("unifi-identity-endpoint")
+fi
+
+if [ "$installOrbstack" = true ]; then
+    formulaeToInstall+=("orbstack")
+fi
 
 for target in $formulaeToInstall; do
     if ! brew list $target &>/dev/null; then
@@ -176,28 +251,58 @@ for target in $formulaeToInstall; do
     fi
 done
 
+curl -fsSL https://claude.ai/install.sh | bash
+
+echo "Configuring Claude Code"
+"$dotfilePath/install-scripts/claude.sh"
+
+# Wins window manager (settings pane lives in System Settings > Wins,
+# stored in the cools.wins.main defaults domain). Written before first
+# launch so the app picks them up. launchOnLogin still requires one
+# manual launch for the app to register its login item.
+echo "Configuring Wins"
+defaults write cools.wins.main launchOnLogin -bool true
+defaults write cools.wins.main respectStageManager -bool true
+# Snapping
+defaults write cools.wins.main edgeSnap -bool true
+defaults write cools.wins.main showSplitWindow -bool true
+defaults write cools.wins.main snapMarginEnable -bool false
+defaults write cools.wins.main gapSize -int 0
+defaults write cools.wins.main centerStatus -bool true
+# Dock previews and flick gestures
+defaults write cools.wins.main enableDockPreview -bool true
+defaults write cools.wins.main enableFlickDock -bool true
+# Window hiding
+defaults write cools.wins.main enableShakeHiddenWindows -bool true
+defaults write cools.wins.main hiddenAllWindowStatus -bool true
+defaults write cools.wins.main hiddenOtherWindowsStatus -bool true
+# Command-Tab Plus and Mission Control Pro
+defaults write cools.wins.main commandTabPlus -bool true
+defaults write cools.wins.main missionControlProStatus -bool true
+defaults write cools.wins.main missionControlProClosesWindowStatus -bool false
+defaults write cools.wins.main missionControlProQuitAppStatus -bool false
+# Move window between displays
+defaults write cools.wins.main nextDisplayStatus -bool true
+defaults write cools.wins.main prevDisplayStatus -bool true
+
 # Install AppStore Content
 
 appStoreApps=()
 
 # Safari Plugins
 appStoreApps+=("1365531024") # 1Blocker
-appStoreApps+=("1592917505") # Noir
-appStoreApps+=("1533805339") # Keepa - Price Tracker
-appStoreApps+=("6738342400") # Tampermonkey
 appStoreApps+=("1622835804") # Kagi
-appStoreApps+=("1615431236") # Bonjourr Startpage
 
 # Media
 appStoreApps+=("1346247457") # Endel
 appStoreApps+=("1436994560") # Portal
 
 # Utilities
-appStoreApps+=("1508732804") # Soulver 3
+appStoreApps+=("1352778147") # Bitwarden
+appStoreApps+=("1508732804") # Soulver
 appStoreApps+=("1452453066") # Hidden Bar
 appStoreApps+=("470158793")  # Keka
 appStoreApps+=("411643860")  # DaisyDisk
-appStoreApps+=("1588708173") # Elsewhen
 appStoreApps+=("403504866")  # PCalc
 appStoreApps+=("937984704") # Amphetamine
 appStoreApps+=("1596706466") # Speediness
@@ -210,44 +315,53 @@ appStoreApps+=("1569680330") # Rsyncinator
 appStoreApps+=("6446933691") # Postico 2
 
 # Productivity
-# Update with Creator Studio IDs.
-# appStoreApps+=("409203825")  # Numbers
-# appStoreApps+=("409201541")  # Pages
-# appStoreApps+=("409183694")  # Keynote
 appStoreApps+=("890031187")  # Marked 2
 appStoreApps+=("1663047912") # Screens 5
 appStoreApps+=("1522267256") # Shareful
 
+installedAppIds=$(mas list | awk '{print $1}')
+
 for appId in $appStoreApps; do
-    mas install "$appId"
+    if ! echo "$installedAppIds" | grep -qx "$appId"; then
+        mas install "$appId"
+    fi
 done
 
 ## Configurations
 
-if [ ! -f "$HOME/.gitconfig" ]; then
+# Test -L along with -e so a broken symlink is not treated as missing
+if [ ! -e "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
     ### Git
     echo "Configuring git"
     ln -s "$HOME/.dotfiles/git/gitconfig" "$HOME/.gitconfig"
 fi
 
-if [ ! -f "$HOME/.ssh/config" ]; then
+if [ ! -e "$HOME/.ssh/config" ] && [ ! -L "$HOME/.ssh/config" ]; then
     echo "Linking SSH Config"
     mkdir -p "$HOME/.ssh"
     ln -s "$HOME/.dotfiles/ssh/config" "$HOME/.ssh/config"
 fi
 
-if [ ! -f "$HOME/.zshrc" ]; then
+if [ ! -e "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
     echo "Linking ZSH Config"
     ln -s "$HOME/.dotfiles/config/zshrc" "$HOME/.zshrc"
 fi
 
-if [ ! -f "$HOME/.zshenv" ]; then
+if [ ! -e "$HOME/.zshenv" ] && [ ! -L "$HOME/.zshenv" ]; then
     echo "Linking ZSH Env"
     ln -s "$HOME/.dotfiles/config/zshenv" "$HOME/.zshenv"
 fi
 
-sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+if [ ! -e "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
+    echo "Linking tmux Config"
+    ln -s "$HOME/.dotfiles/config/tmux.conf" "$HOME/.tmux.conf"
+fi
+
+if [ ! -e "$HOME/.config/nvim/init.lua" ] && [ ! -L "$HOME/.config/nvim/init.lua" ]; then
+    echo "Linking Neovim Config"
+    mkdir -p "$HOME/.config/nvim"
+    ln -s "$HOME/.dotfiles/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+fi
 
 cd $HOME/.dotfiles
 git remote set-url origin git@github.com:Garbee/dotfiles.git
@@ -266,18 +380,18 @@ First, go into the Privacy and Security system preferences.
 The following should be granted permissions:
 
 * Full Disk access
-   * Iterm2
    * Terminal
-   * Visual Studio Code
+   * Ghostty
    * Zed
 * App Management
-   * Iterm2
    * Terminal
-   * Latest
+   * Ghostty
+* Accessibility
+   * Wins
 * Screen & System Audio Recording
-   * MacWhisper
-   * Zoom
-   * Slack
+   * Wins (needed for Dock previews)
+
+Then launch Wins once so it registers its login item.
 EOF
 
 if ask "Do you want to open the Privacy and Security system preferences now?"; then

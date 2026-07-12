@@ -1,1 +1,19 @@
-export SSH_AUTH_SOCK=/Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+export PATH="$HOME/.local/bin:$PATH"
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+export DO_NOT_TRACK=1
+
+export HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1 # Revert to not auto-updating casks that update themselves. Homebrew 6.0 change that is annoying.
+export HOMEBREW_NO_AUTO_UPDATE=1      # do not auto-run `brew update` before installs
+export HOMEBREW_NO_ANALYTICS=1        # opt out of analytics
+export HOMEBREW_NO_ENV_HINTS=1        # silence environment hints
+export HOMEBREW_NO_AUTOREMOVE=1       # do not auto-remove old versions of packages
+export HOMEBREW_NO_INSTALL_CLEANUP=1  # do not auto-cleanup after installs
+export HOMEBREW_REQUIRE_TAP_TRUST=1   # require non-official taps to be explicitly trusted
+export HOMEBREW_CLEANUP_MAX_AGE_DAYS=45 # Trim down how much the cache is used.
+export HOMEBREW_CLEANUP_PERIODIC_FULL_DAYS=0 # Do not run periodic full cleanup.
+
+if [ -f ~/.zshenv.local ]; then
+  # An override to give local settings. Such as an SSH_AUTH_SOCK.
+  # Since that will vary from machine to machine.
+  source ~/.zshenv.local
+fi

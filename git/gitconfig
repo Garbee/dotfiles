@@ -3,20 +3,10 @@
 [user]
 	name = Jonathan Garbee
 	email = jonathan@garbee.me
-	signingkey = /Users/jonathan/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/PublicKeys/f7ee9bd0946dc4e7d24682702ca87c62.pub
 [core]
     pager = delta
     excludesfile = /Users/jonathan/.gitignore_global
 	fsmonitor = true
-[interactive]
-    diffFilter = delta --color-only
-[delta]
-    features = side-by-side line-numbers decorations
-    whitespace-error-style = 22 reverse
-[delta "decorations"]
-    commit-decoration-style = bold yellow box ul
-    file-style = bold yellow ul
-    file-decoration-style = none
 [alias]
   ##
   # One letter alias for our most frequent commands.
@@ -517,15 +507,3 @@ f"
 	allowedSignersFile = ~/.gitallowedsigners
 [commit]
 	gpgsign = true
-[includeIf "gitdir:~/Developer/Deque/"]
-	path = ~/Developer/Deque/gitconfig
-[merge]
-	tool = juxta
-[diff]
-	tool = juxta
-[mergetool "juxta"]
-	cmd = juxta _mergetool --base \"${BASE:-/dev/null}\" --local \"$LOCAL\" --remote \"$REMOTE\" --merged \"${MERGED:-/dev/null}\"
-	trustExitCode = true
-[difftool "juxta"]
-	cmd = juxta _difftool --local \"$LOCAL\" --remote \"$REMOTE\" --merged \"$MERGED\"
-	trustExitCode = true
