@@ -7,6 +7,34 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- ── Keymaps (aligned with tmux) ─────────────────────────────────────────────
+-- The tmux prefix is Ctrl+Space and the Neovim leader is Space — the same
+-- physical key — so `prefix + X` in tmux and `leader + X` here do the analogous
+-- thing. Splits, focus movement, resizing, and reload all mirror tmux.conf.
+local map = vim.keymap.set
+
+-- Splits: v = side-by-side, s = stacked (matches tmux `prefix v` / `prefix s`).
+map('n', '<leader>v', '<cmd>vsplit<cr>', { desc = 'Split window side-by-side' })
+map('n', '<leader>s', '<cmd>split<cr>',  { desc = 'Split window stacked' })
+
+-- New tab (tmux `prefix c` opens a new window).
+map('n', '<leader>c', '<cmd>tabnew<cr>', { desc = 'New tab' })
+
+-- Move focus between splits with leader + h/j/k/l (tmux `prefix h/j/k/l`).
+map('n', '<leader>h', '<C-w>h', { desc = 'Focus split left' })
+map('n', '<leader>j', '<C-w>j', { desc = 'Focus split below' })
+map('n', '<leader>k', '<C-w>k', { desc = 'Focus split above' })
+map('n', '<leader>l', '<C-w>l', { desc = 'Focus split right' })
+
+-- Resize splits with leader + arrows (tmux `prefix` + arrows).
+map('n', '<leader><Left>',  '<cmd>vertical resize -5<cr>', { desc = 'Shrink split width' })
+map('n', '<leader><Right>', '<cmd>vertical resize +5<cr>', { desc = 'Grow split width' })
+map('n', '<leader><Down>',  '<cmd>resize -5<cr>',          { desc = 'Shrink split height' })
+map('n', '<leader><Up>',    '<cmd>resize +5<cr>',          { desc = 'Grow split height' })
+
+-- Reload config (tmux `prefix r`).
+map('n', '<leader>r', '<cmd>source $MYVIMRC<cr>', { desc = 'Reload config' })
+
 -- ── Line numbers ────────────────────────────────────────────────────────────
 -- Show the absolute number on the current line and relative distances above and
 -- below it (hybrid mode).

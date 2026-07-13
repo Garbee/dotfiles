@@ -16,6 +16,7 @@ crossPlatformFormulae+=("git" "gh" "gnupg")
 crossPlatformFormulae+=(
     "coreutils"
     "bat"                 # cat with syntax highlighting
+    "betterleaks"         # Secret/leak scanner
     "bitwarden-cli"       # Bitwarden password manager CLI
     "eza"                 # Modern ls replacement
     "fzf"                 # Fuzzy finder
