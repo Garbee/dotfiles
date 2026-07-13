@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tmux — keybinding reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Catppuccin Latte–derived, tuned for print contrast */
+    --paper:#ffffff;
+    --bg:#e6e9ef;
+    --ink:#2a2c3d;
+    --muted:#6c6f85;
+    --line:#c4c8d4;
+    --line-soft:#dce0e8;
+    --blue:#1e66f5;      /* your active-pane color */
+    --green:#2f9e1f;     /* "custom / yours"  */
+    --peach:#e8590c;     /* "gotcha / changed" */
+    --key-face:#ffffff;
+    --key-edge:#b8bcc9;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.35;
+    -webkit-font-smoothing:antialiased;
+    padding:28px 16px 48px;
+  }
+
+  .sheet{
+    max-width:1120px;
+    margin:0 auto;
+    background:var(--paper);
+    border:1px solid var(--line-soft);
+    border-radius:10px;
+    box-shadow:0 10px 40px rgba(30,40,80,.10);
+    padding:26px 28px 30px;
+    position:relative;
+  }
+  .sheet::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:4px;
+    background:var(--blue);
+    border-radius:10px 10px 0 0;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;flex-wrap:wrap;gap:18px 24px;
+    align-items:flex-end;justify-content:space-between;
+    padding-bottom:14px;margin-bottom:18px;
+    border-bottom:1.5px solid var(--ink);
+  }
+  .brand{min-width:0}
+  .title{
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:700;font-size:34px;letter-spacing:-.02em;
+    line-height:1;margin:0;
+    display:flex;align-items:baseline;gap:2px;
+  }
+  .title .caret{color:var(--blue)}
+  .title .blink{
+    color:var(--blue);font-weight:500;
+    animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .subtitle{
+    margin:8px 0 0;color:var(--muted);
+    font-size:12.5px;max-width:52ch;
+  }
+  .subtitle code{
+    font-family:"IBM Plex Mono",monospace;
+    background:var(--line-soft);border-radius:4px;
+    padding:1px 5px;color:var(--ink);font-size:11.5px;
+  }
+
+  /* prefix anchor block */
+  .prefix-anchor{
+    display:flex;flex-direction:column;gap:6px;align-items:flex-end;
+    text-align:right;
+  }
+  .prefix-anchor .lab{
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;
+  }
+  .prefix-anchor .combo{display:flex;align-items:center;gap:6px}
+  .prefix-anchor .note{font-size:10.5px;color:var(--muted)}
+
+  /* ---------- Legend ---------- */
+  .legend{
+    display:flex;flex-wrap:wrap;gap:6px 18px;
+    margin:0 0 18px;font-size:11px;color:var(--muted);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .mk{
+    font-family:"IBM Plex Mono",monospace;font-weight:700;
+    width:1em;text-align:center;
+  }
+  .mk.c{color:var(--green)}
+  .mk.d{color:var(--muted)}
+  .mk.p{color:var(--blue)}
+  .mk.g{color:var(--peach)}
+
+  /* ---------- Columns of groups ---------- */
+  .cols{
+    column-width:330px;
+    column-gap:22px;
+  }
+  .group{
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+    page-break-inside:avoid;
+    margin:0 0 16px;
+    padding:0;
+  }
+  .group h2{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;
+    margin:0 0 7px;padding:0 0 5px;
+    color:var(--ink);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .group h2 .hx{color:var(--muted);font-weight:500}
+  .group.gotcha h2{border-color:var(--peach)}
+  .group.gotcha h2 .name{color:var(--peach)}
+
+  .row{
+    display:grid;
+    grid-template-columns:1.1em minmax(84px,max-content) 1fr;
+    gap:4px 9px;align-items:baseline;
+    padding:3px 0;
+  }
+  .row + .row{border-top:1px solid var(--line-soft)}
+  .marker{
+    font-family:"IBM Plex Mono",monospace;font-weight:700;
+    font-size:11px;line-height:1.5;text-align:center;
+    user-select:none;
+  }
+  .marker.c{color:var(--green)}
+  .marker.d{color:var(--muted)}
+  .marker.p{color:var(--blue)}
+  .marker.g{color:var(--peach)}
+  .keys{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .desc{font-size:12px;color:var(--ink)}
+  .desc b{font-weight:600}
+  .desc .mnem{color:var(--muted);font-size:11px}
+  .desc code{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;
+    background:var(--line-soft);padding:0 4px;border-radius:3px;
+  }
+
+  /* subhead inside a group (copy-mode phases etc.) */
+  .subhead{
+    grid-column:1 / -1;
+    font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;
+    margin:6px 0 1px;
+  }
+
+  /* ---------- Keycaps ---------- */
+  .k{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;font-weight:600;line-height:1;
+    color:var(--ink);
+    background:var(--key-face);
+    border:1px solid var(--key-edge);
+    border-bottom-width:2.5px;
+    border-radius:5px;
+    padding:3px 6px;
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:20px;white-space:nowrap;
+  }
+  .k.prefix{
+    color:#fff;background:var(--blue);
+    border-color:#1550c9;border-bottom-color:#1044a8;
+    letter-spacing:.01em;
+  }
+  .k.wide{padding-left:8px;padding-right:8px}
+  .plus{color:var(--muted);font-size:11px;font-weight:600;padding:0 1px}
+  .then{color:var(--muted);font-size:10px;font-style:italic;padding:0 2px}
+
+  /* pane split mini-diagrams */
+  .diag{
+    display:inline-grid;width:26px;height:17px;
+    border:1.5px solid currentColor;border-radius:3px;
+    vertical-align:-4px;color:var(--blue);
+  }
+  .diag i{display:block}
+  .diag.lr{grid-template-columns:1fr 1fr}
+  .diag.lr i:first-child{border-right:1.5px solid currentColor}
+  .diag.tb{grid-template-rows:1fr 1fr}
+  .diag.tb i:first-child{border-bottom:1.5px solid currentColor}
+
+  /* ---------- Print button ---------- */
+  .toolbar{
+    max-width:1120px;margin:0 auto 14px;
+    display:flex;justify-content:flex-end;
+  }
+  .print-btn{
+    font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:600;
+    color:#fff;background:var(--ink);
+    border:none;border-radius:7px;padding:8px 15px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .print-btn:hover{background:#1a1c2b}
+  .print-btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+  footer{
+    margin-top:20px;padding-top:12px;border-top:1px solid var(--line-soft);
+    display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between;
+    font-size:10.5px;color:var(--muted);
+  }
+  footer code{font-family:"IBM Plex Mono",monospace}
+
+  /* ---------- Print ---------- */
+  @page{margin:12mm}
+  @media print{
+    :root{--bg:#fff}
+    html,body{background:#fff}
+    body{padding:0;font-size:10.5px}
+    .toolbar{display:none}
+    .sheet{
+      max-width:none;margin:0;border:none;border-radius:0;
+      box-shadow:none;padding:0;
+    }
+    .sheet::before{display:none}
+    .cols{column-width:auto;columns:3;column-gap:9mm}
+    .title{font-size:26px}
+    .k{border-bottom-width:2px}
+    .group{margin-bottom:11px}
+    .title .blink{animation:none}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+
+  @media (max-width:480px){
+    .sheet{padding:20px 16px}
+    header{align-items:flex-start}
+    .prefix-anchor{align-items:flex-start;text-align:left}
+    .title{font-size:28px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .title .blink{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="print-btn" onclick="window.print()">⌘ Print / Save as PDF</button>
+</div>
+
+<main class="sheet">
+  <header>
+    <div class="brand">
+      <h1 class="title"><span class="caret">❯</span>tmux<span class="blink">_</span></h1>
+      <p class="subtitle">Keybinding reference for your config. Almost everything starts with the <b>prefix</b>, then a key. Stock tmux bindings you didn't remap still work — this card lists the useful ones alongside your customizations. Source: <code>~/.tmux.conf</code></p>
+    </div>
+    <div class="prefix-anchor">
+      <div class="lab">Prefix</div>
+      <div class="combo">
+        <span class="k">Ctrl</span><span class="plus">+</span><span class="k wide">Space</span>
+      </div>
+      <div class="note">remapped from <code style="font-family:'IBM Plex Mono';font-size:10px">Ctrl+b</code> · press twice to send it through</div>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span><span class="mk c">●</span> your customization</span>
+    <span><span class="mk d">○</span> tmux default</span>
+    <span><span class="mk p">◆</span> from a plugin</span>
+    <span><span class="mk g">▲</span> changed from stock (see gotchas)</span>
+    <span><span class="k prefix" style="font-size:10px;padding:2px 5px">prefix</span> = Ctrl + Space</span>
+  </div>
+
+  <div class="cols">
+
+    <!-- ESSENTIALS -->
+    <section class="group">
+      <h2><span class="name">Essentials</span></h2>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">?</span></span><span class="desc">List <b>every</b> key binding (the live cheat sheet)</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">r</span></span><span class="desc">Reload <code>~/.tmux.conf</code></span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">:</span></span><span class="desc">Command prompt</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">d</span></span><span class="desc">Detach session (leave it running)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">t</span></span><span class="desc">Big clock</span></div>
+    </section>
+
+    <!-- SPLIT PANES -->
+    <section class="group">
+      <h2><span class="name">Panes · split</span> <span class="hx">— keeps current dir</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">v</span></span><span class="desc">Split <b>left | right</b> <span class="diag lr"><i></i><i></i></span> <span class="mnem">(v = vertical divider)</span></span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">s</span></span><span class="desc">Split <b>top / bottom</b> <span class="diag tb"><i></i><i></i></span> <span class="mnem">(s = stacked)</span></span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">%</span></span><span class="desc">Stock split left | right (also works)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">"</span></span><span class="desc">Stock split top / bottom (also works)</span></div>
+    </section>
+
+    <!-- MOVE & SIZE -->
+    <section class="group">
+      <h2><span class="name">Panes · move &amp; size</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">h</span><span class="k">j</span><span class="k">k</span><span class="k">l</span></span><span class="desc">Focus pane <b>left / down / up / right</b> (vim keys)</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">←</span><span class="k">↓</span><span class="k">↑</span><span class="k">→</span></span><span class="desc">Resize by 5 — <b>hold to repeat</b></span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">z</span></span><span class="desc">Zoom pane fullscreen / restore</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">o</span></span><span class="desc">Cycle to next pane</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">;</span></span><span class="desc">Jump to last-used pane</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">q</span></span><span class="desc">Flash pane numbers — press one to jump</span></div>
+    </section>
+
+    <!-- MANAGE PANES -->
+    <section class="group">
+      <h2><span class="name">Panes · manage</span></h2>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">x</span></span><span class="desc">Kill pane (asks y/n)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">{</span><span class="k">}</span></span><span class="desc">Move pane earlier / later in layout</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k wide">Space</span></span><span class="desc">Cycle preset layouts</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">!</span></span><span class="desc">Break pane out into its own window</span></div>
+    </section>
+
+    <!-- WINDOWS -->
+    <section class="group">
+      <h2><span class="name">Windows</span> <span class="hx">— numbered from 1</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k">c</span></span><span class="desc">New window (keeps current dir)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">n</span><span class="k">p</span></span><span class="desc">Next / previous window</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">1</span><span class="then">…</span><span class="k">9</span></span><span class="desc">Jump to window by number</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">w</span></span><span class="desc">Tree of windows &amp; sessions</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">,</span></span><span class="desc">Rename window <span class="mnem">(auto-named to dir otherwise)</span></span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">&amp;</span></span><span class="desc">Kill window (asks y/n)</span></div>
+    </section>
+
+    <!-- SESSIONS -->
+    <section class="group">
+      <h2><span class="name">Sessions</span></h2>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">w</span></span><span class="desc">Choose session/window (use this — see gotchas)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">$</span></span><span class="desc">Rename session</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">(</span><span class="k">)</span></span><span class="desc">Previous / next session</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">d</span></span><span class="desc">Detach</span></div>
+    </section>
+
+    <!-- COPY MODE NAV -->
+    <section class="group">
+      <h2><span class="name">Copy mode · navigate</span> <span class="hx">— vi keys</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k prefix">prefix</span><span class="k wide">Enter</span></span><span class="desc">Enter copy mode <span class="mnem">(or</span> <span class="k" style="font-size:10px;padding:2px 5px">prefix</span> <span class="k" style="font-size:10px;padding:2px 5px">[</span><span class="mnem">)</span></span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">h</span><span class="k">j</span><span class="k">k</span><span class="k">l</span></span><span class="desc">Move — or arrow keys</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">w</span><span class="k">b</span></span><span class="desc">Word forward / back</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">g</span><span class="k">G</span></span><span class="desc">Top / bottom of buffer</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">/</span><span class="k">?</span></span><span class="desc">Search down / up</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">n</span><span class="k">N</span></span><span class="desc">Next / previous match</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k">q</span></span><span class="desc">Quit copy mode</span></div>
+    </section>
+
+    <!-- COPY MODE SELECT -->
+    <section class="group">
+      <h2><span class="name">Copy mode · copy &amp; paste</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k">v</span></span><span class="desc">Begin selection</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k">y</span></span><span class="desc">Copy selection → macOS clipboard <span class="mnem">(pbcopy)</span> &amp; exit</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k wide">Space</span></span><span class="desc">Begin selection (stock vi)</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">]</span></span><span class="desc">Paste most recent copy</span></div>
+      <div class="row"><span class="marker d">○</span><span class="keys"><span class="k prefix">prefix</span><span class="k">=</span></span><span class="desc">Choose from buffer list to paste</span></div>
+    </section>
+
+    <!-- MOUSE -->
+    <section class="group">
+      <h2><span class="name">Mouse</span> <span class="hx">— enabled</span></h2>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k wide">Click</span></span><span class="desc">Focus a pane, or a window in the status bar</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k wide">Drag</span></span><span class="desc">On a border → resize the pane</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k wide">Scroll</span></span><span class="desc">Over a pane → enter copy mode &amp; scroll history</span></div>
+      <div class="row"><span class="marker c">●</span><span class="keys"><span class="k wide">Select</span></span><span class="desc">Drag to select → auto-copies on release <span class="mnem">(pbcopy)</span></span></div>
+    </section>
+
+    <!-- RESURRECT -->
+    <section class="group">
+      <h2><span class="name">Save &amp; restore</span> <span class="hx">— resurrect plugin</span></h2>
+      <div class="row"><span class="marker p">◆</span><span class="keys"><span class="k prefix">prefix</span><span class="k">Ctrl</span><span class="plus">+</span><span class="k">s</span></span><span class="desc">Save all sessions, windows &amp; panes to disk</span></div>
+      <div class="row"><span class="marker p">◆</span><span class="keys"><span class="k prefix">prefix</span><span class="k">Ctrl</span><span class="plus">+</span><span class="k">r</span></span><span class="desc">Restore the last saved layout</span></div>
+      <div class="row"><span class="marker p">◆</span><span class="keys"><span class="k prefix">prefix</span><span class="k wide">I</span></span><span class="desc"><b>tpm:</b> install plugins listed in the config</span></div>
+      <div class="row"><span class="marker p">◆</span><span class="keys"><span class="k prefix">prefix</span><span class="k wide">U</span></span><span class="desc"><b>tpm:</b> update plugins</span></div>
+      <div class="row"><span class="marker p">◆</span><span class="keys"><span class="k prefix">prefix</span><span class="k">Alt</span><span class="plus">+</span><span class="k wide">u</span></span><span class="desc"><b>tpm:</b> remove plugins not in the config</span></div>
+    </section>
+
+    <!-- GOTCHAS -->
+    <section class="group gotcha">
+      <h2><span class="name">Gotchas</span> <span class="hx">— changed from stock tmux</span></h2>
+      <div class="row"><span class="marker g">▲</span><span class="keys"><span class="k prefix">prefix</span></span><span class="desc">Is <b>Ctrl + Space</b>, not <code>Ctrl+b</code></span></div>
+      <div class="row"><span class="marker g">▲</span><span class="keys"><span class="k prefix">prefix</span><span class="k">l</span></span><span class="desc">Focuses pane right — <b>not</b> last-window. Use <code>n</code>/<code>p</code></span></div>
+      <div class="row"><span class="marker g">▲</span><span class="keys"><span class="k prefix">prefix</span><span class="k">s</span></span><span class="desc">Splits panes — <b>not</b> session tree. Use <code>prefix w</code></span></div>
+      <div class="row"><span class="marker g">▲</span><span class="keys"><span class="k prefix">prefix</span><span class="k">←↓↑→</span></span><span class="desc">Resizes panes — <b>not</b> focus. Use <code>h j k l</code></span></div>
+      <div class="row"><span class="marker g">▲</span><span class="keys"><span class="k wide">idx</span></span><span class="desc">Windows &amp; panes start at <b>1</b>; gaps renumber on close</span></div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>Prefix <code>Ctrl+Space</code> · scrollback 50,000 lines · vi mode-keys · Catppuccin (Ghostty)</span>
+    <span>Generated Jul 13, 2026 from <code>~/.tmux.conf</code></span>
+  </footer>
+</main>
+
+</body>
+</html>

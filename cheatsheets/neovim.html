@@ -1,0 +1,450 @@
+<!-- Neovim keybinding cheatsheet — derived from the user's init.lua.
+     Print-first single page. Catppuccin Latte palette (the light variant of the
+     configured colorscheme) so accents survive on paper without wasting ink. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neovim Cheatsheet</title>
+<style>
+  :root {
+    /* Catppuccin Latte */
+    --base:    #eff1f5;
+    --card:    #ffffff;
+    --crust:   #dce0e8;
+    --line:    #ccd0da;
+    --line-2:  #bcc0cc;
+    --key-bg:  #f4f6fa;
+    --text:    #4c4f69;
+    --subtext: #6c6f85;
+    --faint:   #8c8fa1;
+    --mauve:   #8839ef;  /* your config maps        */
+    --blue:    #1e66f5;  /* built-in commands        */
+    --teal:    #179299;  /* behavior from settings   */
+    --peach:   #fe640b;
+
+    --mono: "SF Mono", ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--base);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.35;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .sheet {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 22px 20px 40px;
+  }
+
+  /* ── Statusline hero ──────────────────────────────────────────────── */
+  .statusline {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--mono);
+    background: var(--card);
+    box-shadow: 0 1px 0 var(--crust);
+  }
+  .sl-seg {
+    display: flex;
+    align-items: center;
+    padding: 9px 14px;
+    white-space: nowrap;
+  }
+  .sl-mode {
+    background: var(--mauve);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: .14em;
+    font-size: 12px;
+  }
+  .sl-title {
+    color: var(--text);
+    font-size: 13px;
+    letter-spacing: .01em;
+  }
+  .sl-title b { color: var(--mauve); font-weight: 700; }
+  .sl-spacer { flex: 1 1 auto; }
+  .sl-meta {
+    color: var(--subtext);
+    font-size: 12px;
+    border-left: 1px solid var(--line);
+  }
+  .sl-meta .lead { color: var(--peach); font-weight: 600; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 12px 2px 18px;
+    font-size: 11.5px;
+    color: var(--subtext);
+  }
+  .legend .dot {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: -1px;
+  }
+  .legend .m { background: var(--mauve); }
+  .legend .b { background: var(--blue); }
+  .legend .t { background: var(--teal); }
+
+  /* ── Card grid (multi-column, print-stable) ──────────────────────── */
+  .grid { column-count: 3; column-gap: 16px; }
+  @media (max-width: 860px) { .grid { column-count: 2; } }
+  @media (max-width: 560px) { .grid { column-count: 1; } }
+
+  .card {
+    break-inside: avoid;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top-width: 2.5px;
+    border-radius: 8px;
+    padding: 12px 13px 11px;
+    margin: 0 0 16px;
+  }
+  .card--config  { border-top-color: var(--mauve); }
+  .card--builtin { border-top-color: var(--blue);  }
+  .card--note    { border-top-color: var(--teal);  }
+
+  .card__head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 1px 0 9px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .card--config  .card__head { color: var(--mauve); }
+  .card--builtin .card__head { color: var(--blue);  }
+  .card--note    .card__head { color: var(--teal);  }
+  .card__head .sub {
+    margin-left: auto;
+    font-weight: 500;
+    letter-spacing: .02em;
+    text-transform: none;
+    color: var(--faint);
+    font-family: var(--sans);
+    font-size: 10.5px;
+  }
+
+  .rows { display: flex; flex-direction: column; gap: 6px; }
+  .row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    align-items: center;
+  }
+  .act { color: var(--text); font-size: 12.5px; }
+  .act .em { color: var(--subtext); }
+
+  kbd {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text);
+    background: var(--key-bg);
+    border: 1px solid var(--line);
+    border-bottom: 2px solid var(--line-2);
+    border-radius: 5px;
+    padding: 3px 5px;
+    min-width: 15px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  kbd.wide { letter-spacing: .02em; }
+  .sep { color: var(--faint); font-size: 11px; padding: 0 1px; }
+
+  .note-list { display: flex; flex-direction: column; gap: 7px; }
+  .note-list .ni { font-size: 12px; }
+  .note-list .ni b { color: var(--teal); font-weight: 600; }
+
+  .foot {
+    margin: 6px 2px 0;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--faint);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .hint {
+    margin: 0 2px 16px;
+    font-size: 11.5px;
+    color: var(--subtext);
+    background: var(--crust);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 10px;
+    display: inline-block;
+  }
+  .hint kbd { background: var(--card); }
+
+  /* ── Print ────────────────────────────────────────────────────────── */
+  @page { size: portrait; margin: 11mm; }
+  @media print {
+    :root { --base: #fff; }
+    body  { background: #fff; font-size: 9.6pt; }
+    .sheet { max-width: none; padding: 0; }
+    .no-print { display: none !important; }
+    .grid { column-count: 2; column-gap: 8mm; }
+    .card { margin-bottom: 5mm; box-shadow: none; page-break-inside: avoid; }
+    .statusline, .card, kbd { box-shadow: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="sheet">
+
+  <div class="statusline">
+    <div class="sl-seg sl-mode">NORMAL</div>
+    <div class="sl-seg sl-title"><b>init.lua</b>&nbsp;— keybinding cheatsheet</div>
+    <div class="sl-spacer"></div>
+    <div class="sl-seg sl-meta"><span class="lead">leader&nbsp;=&nbsp;Spc</span></div>
+    <div class="sl-seg sl-meta">nvim&nbsp;0.12</div>
+    <div class="sl-seg sl-meta">utf-8</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot m"></span>Your config &middot; leader maps</span>
+    <span><span class="dot b"></span>Built-in Neovim</span>
+    <span><span class="dot t"></span>Behavior from your settings</span>
+    <span style="color:var(--faint)"><kbd style="font-size:10px;padding:2px 4px">Spc</kbd> = leader (Space)</span>
+  </div>
+
+  <div class="hint no-print">
+    Print, or press <kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>P</kbd> → <b>Save as PDF</b>. Lays out to a single page.
+  </div>
+
+  <div class="grid">
+
+    <!-- ── Your config ────────────────────────────────────────────── -->
+    <section class="card card--config">
+      <div class="card__head">Splits <span class="sub">create &amp; focus</span></div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>v</kbd></span>
+          <span class="act">Split side-by-side <span class="em">(vertical)</span></span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>s</kbd></span>
+          <span class="act">Split stacked <span class="em">(horizontal)</span></span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>h</kbd></span>
+          <span class="act">Focus split left</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>j</kbd></span>
+          <span class="act">Focus split below</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>k</kbd></span>
+          <span class="act">Focus split above</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>l</kbd></span>
+          <span class="act">Focus split right</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--config">
+      <div class="card__head">Resize <span class="sub">by 5 cols/rows</span></div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>&larr;</kbd></span>
+          <span class="act">Shrink width</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>&rarr;</kbd></span>
+          <span class="act">Grow width</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>&darr;</kbd></span>
+          <span class="act">Shrink height</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>&uarr;</kbd></span>
+          <span class="act">Grow height</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--config">
+      <div class="card__head">Tabs &amp; config</div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>c</kbd></span>
+          <span class="act">New tab</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Spc</kbd><kbd>r</kbd></span>
+          <span class="act">Reload config <span class="em">(source init.lua)</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Built-in Neovim ───────────────────────────────────────── -->
+    <section class="card card--builtin">
+      <div class="card__head">Windows <span class="sub">built-in</span></div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>w</kbd></span>
+          <span class="act">Cycle to next window</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>p</kbd></span>
+          <span class="act">Last-used window</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>q</kbd></span>
+          <span class="act">Close this window</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>o</kbd></span>
+          <span class="act">Close all others</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>=</kbd></span>
+          <span class="act">Equalize sizes</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>x</kbd></span>
+          <span class="act">Swap with next</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd class="wide">HJKL</kbd></span>
+          <span class="act">Move window to edge</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>w</kbd><span class="sep">then</span><kbd>T</kbd></span>
+          <span class="act">Move window to new tab</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--builtin">
+      <div class="card__head">Tabs <span class="sub">built-in</span></div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>g</kbd><kbd>t</kbd><span class="sep">/</span><kbd>g</kbd><kbd>T</kbd></span>
+          <span class="act">Next / prev tab</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>n</kbd><kbd>g</kbd><kbd>t</kbd></span>
+          <span class="act">Go to tab <span class="em">n</span></span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:tabc</kbd></span>
+          <span class="act">Close this tab</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:tabo</kbd></span>
+          <span class="act">Close other tabs</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:tabm n</kbd></span>
+          <span class="act">Move tab to position <span class="em">n</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--builtin">
+      <div class="card__head">Handy built-ins</div>
+      <div class="rows">
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>o</kbd><span class="sep">/</span><kbd>Ctrl</kbd><kbd>i</kbd></span>
+          <span class="act">Jump older / newer</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>Ctrl</kbd><kbd>d</kbd><span class="sep">/</span><kbd>Ctrl</kbd><kbd>u</kbd></span>
+          <span class="act">Half-page down / up</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>%</kbd></span>
+          <span class="act">Matching bracket</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>*</kbd><span class="sep">/</span><kbd>#</kbd></span>
+          <span class="act">Search word under cursor</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>.</kbd></span>
+          <span class="act">Repeat last change</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>g</kbd><kbd>v</kbd></span>
+          <span class="act">Reselect last visual</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>z</kbd><kbd>z</kbd><span class="sep">/</span><kbd>z</kbd><kbd>t</kbd></span>
+          <span class="act">Center / top cursor line</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:noh</kbd></span>
+          <span class="act">Clear search highlight</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd>q</kbd><kbd>a</kbd><span class="sep">…</span><kbd>@</kbd><kbd>a</kbd></span>
+          <span class="act">Record macro / replay</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:%s/a/b/gc</kbd></span>
+          <span class="act">Substitute, confirm each</span>
+        </div>
+        <div class="row">
+          <span class="keys"><kbd class="wide">:g/pat/d</kbd></span>
+          <span class="act">Delete lines matching</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Behavior from your settings ───────────────────────────── -->
+    <section class="card card--note">
+      <div class="card__head">Good to know <span class="sub">your settings</span></div>
+      <div class="note-list">
+        <div class="ni"><b>Leader is Space</b> — mirrors the tmux <span style="font-family:var(--mono)">Ctrl-Space</span> prefix, so <span style="font-family:var(--mono)">prefix&nbsp;X</span> in tmux and <span style="font-family:var(--mono)">Spc&nbsp;X</span> here match.</div>
+        <div class="ni"><b>System clipboard</b> — yank, delete, and put use the OS clipboard; no register prefix needed.</div>
+        <div class="ni"><b>Smart search case</b> — case-insensitive until you type a capital, then case-sensitive.</div>
+        <div class="ni"><b>Persistent undo</b> — undo/redo history survives closing and reopening a file.</div>
+        <div class="ni"><b>Hybrid line numbers</b> — absolute on the cursor line, relative everywhere else.</div>
+        <div class="ni"><b>2-space indent</b> — tabs expand to spaces; new splits open right and below.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="foot">
+    <span>~/.config/nvim/init.lua</span>
+    <span>tmux-aligned &middot; catppuccin &middot; treesitter</span>
+  </div>
+
+</div>
