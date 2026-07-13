@@ -1,0 +1,33 @@
+# Catppuccin, following the system appearance
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+
+font-family = PragmataPro VF Liga
+font-size = 16
+font-feature = liga
+font-feature = calt
+adjust-cell-height = 20%
+
+# tmux owns the session, so closing a window is always safe — skip the prompt
+confirm-close-surface = false
+
+# tmux copy-mode handles clipboard via pbcopy; don't also copy on raw selection
+copy-on-select = false
+
+# Option sends Alt so readline/zsh alt+b / alt+f word-jumps work
+macos-option-as-alt = true
+
+mouse-hide-while-typing = true
+
+window-padding-x = 8
+window-padding-y = 8
+# Color the padding to match cell content so TUIs don't show a mismatched border
+window-padding-color = extend
+
+macos-icon = microchip
+
+# Restore window size/position across restarts; pairs with tmux auto-attach
+window-save-state = always
+
+cursor-style = block
+minimum-contrast = 3
+quit-after-last-window-closed = true

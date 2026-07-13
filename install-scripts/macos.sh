@@ -118,7 +118,7 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
 # Enable full keyboard access for all controls
 # (e.g. enable Tab in modal dialogs)
-defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 2
 
 # Show all file extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
@@ -187,11 +187,25 @@ defaults write com.apple.finder FXRemoveOldTrashItems -bool true
 # New windows open in Home
 defaults write com.apple.finder NewWindowTarget -string "PfHm"
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+# Disable floating/Liquid Glass sidebar appearance
+defaults write -g NSSplitViewItemSidebarDefaultsToFloatingAppearance -bool false
+defaults write -g NSConvolutionOverride1 -float 10
+# Keep folders on top when sorting by name
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+# Disable extension change warning
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+# Disable emoji picker from keyboard
+defaults write com.apple.HIToolbox AppleFnUsageType -int "0"
+
+# Save screenshots to ~/Pictures/Screenshots
+mkdir -p "$HOME/Pictures/Screenshots"
+defaults write com.apple.screencapture location -string "$HOME/Pictures/Screenshots"
 
 # Restart affected apps so settings take effect
 killall Dock 2>/dev/null || true
 killall Finder 2>/dev/null || true
 killall ControlCenter 2>/dev/null || true
+killall SystemUIServer 2>/dev/null || true
 
 ## Misc
 if [[ ! -d "$HOME/Developer" ]]; then
@@ -361,6 +375,12 @@ if [ ! -e "$HOME/.config/nvim/init.lua" ] && [ ! -L "$HOME/.config/nvim/init.lua
     echo "Linking Neovim Config"
     mkdir -p "$HOME/.config/nvim"
     ln -s "$HOME/.dotfiles/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+fi
+
+if [ ! -e "$HOME/.config/ghostty/config" ] && [ ! -L "$HOME/.config/ghostty/config" ]; then
+    echo "Linking Ghostty Config"
+    mkdir -p "$HOME/.config/ghostty"
+    ln -s "$HOME/.dotfiles/config/ghostty/config" "$HOME/.config/ghostty/config"
 fi
 
 cd $HOME/.dotfiles

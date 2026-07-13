@@ -1,5 +1,12 @@
 -- Neovim configuration
 
+-- ── Leader ──────────────────────────────────────────────────────────────────
+-- Space as leader (Ctrl+Space is the tmux prefix, so plain Space avoids the
+-- double-press needed to pass it through). Must be set before any mappings or
+-- plugins are loaded.
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
 -- ── Line numbers ────────────────────────────────────────────────────────────
 -- Show the absolute number on the current line and relative distances above and
 -- below it (hybrid mode).

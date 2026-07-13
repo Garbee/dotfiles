@@ -1,5 +1,17 @@
+if [[ -d "$HOME/.opencode" ]]; then
+  export PATH="$HOME/.opencode/bin:$PATH"
+fi
+
 alias claude='claude --allow-dangerously-skip-permissions'
 alias pmux='tmux new-session -A -s primary' # Reattach to or start the primary session
+
+# Modern replacements for classic tools
+alias ls='eza'
+alias ll='eza -l'
+alias la='eza -la'
+alias tree='eza --tree'
+alias cat='bat'
+alias ping='prettyping'
 
 # Auto-start the "primary" tmux session, except inside IDE terminals
 # (Zed, IntelliJ, VS Code) or when already inside tmux. In Ghostty, only
@@ -13,9 +25,6 @@ if [[ -o interactive && -z "$TMUX" ]] \
          && tmux list-clients -t primary 2>/dev/null | grep -q .; }; then
   exec tmux new-session -A -s primary
 fi
-
-# opencode
-export PATH=/Users/jonathan/.opencode/bin:$PATH
 
 if [ -f ~/.zshrc.local ]; then
   # An override to give local settings.
