@@ -383,6 +383,12 @@ if [ ! -e "$HOME/.config/ghostty/config" ] && [ ! -L "$HOME/.config/ghostty/conf
     ln -s "$HOME/.dotfiles/config/ghostty/config" "$HOME/.config/ghostty/config"
 fi
 
+if [ ! -e "$HOME/.config/hunk/config.toml" ] && [ ! -L "$HOME/.config/hunk/config.toml" ]; then
+    echo "Linking Hunk Config"
+    mkdir -p "$HOME/.config/hunk"
+    ln -s "$HOME/.dotfiles/config/hunk/config.toml" "$HOME/.config/hunk/config.toml"
+fi
+
 cd $HOME/.dotfiles
 git remote set-url origin git@github.com:Garbee/dotfiles.git
 cd $HOME

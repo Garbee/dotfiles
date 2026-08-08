@@ -58,6 +58,7 @@ vim.opt.undofile = true
 vim.opt.signcolumn = 'yes'  -- always reserve the sign column so text doesn't shift
 vim.opt.cursorline = true   -- highlight the line the cursor is on
 vim.opt.scrolloff = 8       -- keep 8 lines of context above/below the cursor
+vim.opt.colorcolumn = '60,80,100,120'  -- visual rulers at common line-length limits
 
 -- ── Splits ──────────────────────────────────────────────────────────────────
 vim.opt.splitright = true   -- vertical splits open to the right
@@ -96,7 +97,7 @@ vim.filetype.add({
 -- ── Colorscheme ─────────────────────────────────────────────────────────────
 -- Bundled with Neovim 0.12+. The stock default scheme renders keywords as bold
 -- with no color; catppuccin gives every syntax group a distinct color.
-vim.cmd.colorscheme('catppuccin')
+-- vim.cmd.colorscheme('homebrew')
 
 -- ── Plugins ─────────────────────────────────────────────────────────────────
 -- Managed by Neovim's built-in package manager (vim.pack, 0.12+).

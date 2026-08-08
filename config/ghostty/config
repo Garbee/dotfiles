@@ -1,5 +1,5 @@
 # Catppuccin, following the system appearance
-theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+theme = light:Homebrew,dark:Homebrew
 
 font-family = PragmataPro VF Liga
 font-size = 16
