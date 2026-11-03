@@ -44,10 +44,11 @@ Bash picks its startup files based on two questions:
    2. Sources **`bash/profile.d/*.sh`** in name order. These set up the
       environment:
       - `10-homebrew.sh`: `brew shellenv` (Homebrew's `PATH`, `MANPATH`,
-        `HOMEBREW_*`).
+        `HOMEBREW_*`), plus `HOMEBREW_*` settings: no auto-update,
+        analytics, hints or automatic cleanup, and taps must be trusted.
       - `20-path.sh`: puts `~/.local/bin` (Claude Code, Codex) first in `PATH`.
       - `30-env.sh`: `EDITOR` (Neovim), `LANG`, `SSH_AUTH_SOCK` (Secretive's
-        agent, used for git commit signing), and the like.
+        agent, used for git commit signing), `DO_NOT_TRACK` and the like.
    3. Sources **`~/.bash_profile.local`** if it exists, for machine-specific
       environment settings.
    4. Sources **`~/.bashrc`**. Bash never does this by itself in a login
