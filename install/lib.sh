@@ -79,7 +79,7 @@ print_list() {
 # desired, with no check of the current value: writing the same value again
 # is harmless.
 #
-#   set_default LABEL DOMAIN KEY TYPE VALUE   e.g. ... com.apple.dock tilesize -int 26
+#   set_default LABEL DOMAIN KEY TYPE VALUE   e.g. ... com.apple.dock tilesize -int 36
 set_default() {
   local label="$1"
   shift

@@ -165,7 +165,8 @@ configure_macos() {
 
   # System Settings > Desktop & Dock.
   log "Desktop & Dock"
-  set_default "Dock icon size 26px" com.apple.dock tilesize -int 26
+  set_default "Dock icon size 36px" com.apple.dock tilesize -int 36
+  set_default "Dock: hide automatically" com.apple.dock autohide -bool true
   set_default "Dock: hide recent apps" com.apple.dock show-recents -bool false
   set_default "Dock magnification on" com.apple.dock magnification -bool true
   # 128 is the largest size the System Settings slider allows.
