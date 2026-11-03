@@ -36,6 +36,37 @@ confirm() {
   [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
 }
 
+# Ask for the administrator password (unless sudo already has it), then keep
+# sudo's cached credentials fresh in the background until this script exits,
+# so later steps and long installers don't ask again. Call it after the user
+# has agreed to a privileged step, right before its first sudo. Does nothing
+# in dry-run mode, or if the keepalive is already running.
+SUDO_KEEPALIVE_PID=""
+sudo_keepalive() {
+  ((DRY_RUN)) && return 0
+  if [[ -n "$SUDO_KEEPALIVE_PID" ]] && kill -0 "$SUDO_KEEPALIVE_PID" 2>/dev/null; then
+    return 0
+  fi
+
+  if ! sudo -v; then
+    # The step's own sudo will ask again, and report if that fails too.
+    note "Could not authenticate with sudo."
+    return 0
+  fi
+
+  # Refresh the timestamp every minute (sudo's default timeout is 5), and
+  # stop when this script is gone or sudo stops accepting the refresh.
+  local parent=$$
+  (
+    while kill -0 "$parent" 2>/dev/null; do
+      sleep 60
+      sudo -n -v 2>/dev/null || exit 0
+    done
+  ) </dev/null >/dev/null 2>&1 &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+}
+
 print_list() {
   local title="$1"
   shift

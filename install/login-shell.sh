@@ -20,6 +20,7 @@ set_login_shell() {
     if ((DRY_RUN)); then
       note "[dry-run] append $BREW_BASH to /etc/shells"
     else
+      sudo_keepalive
       printf '%s\n' "$BREW_BASH" | sudo tee -a /etc/shells >/dev/null
     fi
     DONE+=("Added $BREW_BASH to /etc/shells")

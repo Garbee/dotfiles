@@ -32,6 +32,7 @@ enable_firewall() {
     return 0
   fi
 
+  sudo_keepalive
   if run sudo "$SOCKETFILTERFW" --setglobalstate on; then
     DONE+=("$label on")
   else

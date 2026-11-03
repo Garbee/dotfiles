@@ -15,7 +15,8 @@ install_homebrew() {
     DONE+=("Homebrew")
     return 0
   else
-    note "Running the official Homebrew installer (it will ask for your password)."
+    note "Running the official Homebrew installer (it needs your password)."
+    sudo_keepalive
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     DONE+=("Homebrew")
   fi
@@ -79,6 +80,7 @@ brew_install() {
     SKIPPED+=("$label (declined: needs administrator password)")
     return 0
   fi
+  ((needs_sudo)) && sudo_keepalive
 
   run "$BREW" install -y "$package"
   DONE+=("$label")

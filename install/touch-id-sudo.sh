@@ -78,6 +78,7 @@ enable_touch_id_sudo() {
   if ((DRY_RUN)); then
     note "[dry-run] append the lines above to $SUDO_LOCAL"
   else
+    sudo_keepalive
     # Appends to an existing file (keeping its other lines) or creates it.
     {
       [[ -e "$SUDO_LOCAL" ]] ||
