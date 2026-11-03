@@ -40,7 +40,6 @@ MAS_APPS="
 408981434 iMovie
 1631624924 Final Cut Pro
 6746516157 Compressor
-497799835 Xcode
 "
 
 # Succeeds if the App Store lists app ID as free.
