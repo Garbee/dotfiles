@@ -114,6 +114,8 @@ install_brew_packages() {
   # The shell prompt (see bash/bashrc.d/50-prompt.sh).
   brew_install "Starship" starship
   brew_install "Neovim" neovim
+  # Builds the tree-sitter parsers that nvim/init.lua installs.
+  brew_install "tree-sitter CLI" tree-sitter-cli
   brew_install "jq" jq
   brew_install "ripgrep" ripgrep
   brew_install "fd" fd
