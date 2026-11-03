@@ -1,0 +1,31 @@
+# Added by OrbStack: 'orb' SSH host for Linux machines
+# This only works if it's at the top of ssh_config (before any Host blocks).
+# This won't be added again if you remove it.
+Include ~/.orbstack/ssh/config
+
+# Tracked in the dotfiles repository (public!) and symlinked to ~/.ssh/config
+# by install-macos.sh. Don't put private hostnames, users, or IPs here: put
+# machine-specific hosts and overrides in ~/.ssh/config.local (untracked).
+#
+# ssh uses the first value it finds for each option, so the local file is
+# included first: anything set there wins over the defaults below. A missing
+# file is fine.
+Include ~/.ssh/config.local
+
+Host *
+  # Use keys stored in the Secure Enclave via Secretive.
+  IdentityAgent ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+
+  # Detect dead connections: ask the server for a reply after 60 seconds of
+  # silence, and give up after 3 missed replies.
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
+
+  # Reuse one connection per host: later sessions to the same host start
+  # instantly, without asking Secretive (and Touch ID) again. The master
+  # connection stays open for 10 minutes after the last session closes.
+  # install-macos.sh creates ~/.ssh/sockets (private); %C is a hash of the
+  # host, port and user, so the path never gets too long.
+  ControlMaster auto
+  ControlPath ~/.ssh/sockets/%C
+  ControlPersist 10m

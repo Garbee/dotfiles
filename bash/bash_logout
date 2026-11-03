@@ -1,0 +1,6 @@
+# ~/.bash_logout: read when a LOGIN shell exits (via `exit`/`logout`/Ctrl+D).
+# Tracked in the dotfiles repo and symlinked by install-macos.sh. See
+# bash/README.md for the full loading order.
+
+# Machine-specific logout steps (untracked).
+[[ -r "$HOME/.bash_logout.local" ]] && . "$HOME/.bash_logout.local"

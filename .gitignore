@@ -1,0 +1,3 @@
+# Local, machine-specific overrides (e.g. ~/.ssh/config.local) must never be
+# committed.
+*.local

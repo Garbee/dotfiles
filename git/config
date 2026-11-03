@@ -1,0 +1,80 @@
+# Tracked in the dotfiles repository (public!) and symlinked to
+# ~/.config/git/config by install-macos.sh. Machine-specific settings, such as
+# this machine's signing key, go in ~/.config/git/config.local (untracked),
+# which is included at the end so its values win.
+#
+# git also reads ~/.gitconfig after this file, if it exists, and its values win
+# over both.
+
+[user]
+	name = Jonathan Garbee
+	email = jonathan@garbee.me
+	# user.signingkey is per machine (a Secretive key lives in this Mac's
+	# Secure Enclave): set in config.local.
+
+# Sign commits and tags with an SSH key, through the agent in SSH_AUTH_SOCK
+# (Secretive's; see bash/profile.d/30-env.sh).
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
+	# Tags sort as versions (v1.10 after v1.9).
+	sort = version:refname
+# Keys trusted when verifying signatures (`git log --show-signature`,
+# verify-commit, the %G? log format). Generated per machine by
+# install-macos.sh from the signing key; untracked.
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[init]
+	defaultBranch = main
+[push]
+	# Push the current branch to the same name, and set it as upstream on the
+	# first push.
+	default = current
+	autoSetupRemote = true
+[pull]
+	# Rebase local commits onto what was fetched instead of merging.
+	rebase = true
+[fetch]
+	# Forget remote branches and tags deleted on the server.
+	prune = true
+	pruneTags = true
+[help]
+	# Offer to run the closest command to a typo.
+	autocorrect = prompt
+[branch]
+	# Most recently used first.
+	sort = -committerdate
+[column]
+	ui = auto
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	# i/ and w/ (index, worktree), etc. instead of always a/ and b/.
+	mnemonicPrefix = true
+	renames = copies
+[merge]
+	# Conflicts also show the original (base) text.
+	conflictStyle = zdiff3
+[rerere]
+	# Remember and reuse conflict resolutions.
+	enabled = true
+[rebase]
+	autoSquash = true
+	autoStash = true
+	# Move every branch in a stack, not just the one being rebased.
+	updateRefs = true
+
+# Faster status and checkout, especially in large repositories.
+[core]
+	fsmonitor = true
+	untrackedCache = true
+[feature]
+	manyFiles = true
+
+[include]
+	path = ~/.config/git/config.local

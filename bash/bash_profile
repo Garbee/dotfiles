@@ -1,0 +1,36 @@
+# ~/.bash_profile: read by LOGIN shells (every new terminal tab on macOS).
+# Tracked in the dotfiles repo and symlinked by install-macos.sh. See
+# bash/README.md for the full loading order.
+#
+# Job: set up the environment (PATH, exported variables) once, then hand off
+# to ~/.bashrc for interactive settings.
+
+# Find this repo's bash/ directory by following the symlink, so fragments are
+# loaded from wherever the dotfiles are checked out. Exported so ~/.bashrc
+# (and nested shells) can find it too.
+__dotfiles_src="${BASH_SOURCE[0]}"
+while [[ -L "$__dotfiles_src" ]]; do
+  __dotfiles_dir="$(cd -P "$(dirname "$__dotfiles_src")" && pwd)"
+  __dotfiles_src="$(readlink "$__dotfiles_src")"
+  [[ "$__dotfiles_src" == /* ]] || __dotfiles_src="$__dotfiles_dir/$__dotfiles_src"
+done
+DOTFILES_BASH="$(cd -P "$(dirname "$__dotfiles_src")" && pwd)"
+export DOTFILES_BASH
+unset __dotfiles_src __dotfiles_dir
+
+# Environment fragments, in name order.
+for __f in "$DOTFILES_BASH"/profile.d/*.sh; do
+  [[ -r "$__f" ]] && . "$__f"
+done
+unset __f
+
+# Machine-specific environment (untracked).
+[[ -r "$HOME/.bash_profile.local" ]] && . "$HOME/.bash_profile.local"
+
+# Bash doesn't read ~/.bashrc in login shells on its own, so do it here.
+# ~/.bashrc returns straight away if the shell isn't interactive.
+[[ -r "$HOME/.bashrc" ]] && . "$HOME/.bashrc"
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init.bash 2>/dev/null || :

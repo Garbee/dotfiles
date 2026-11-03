@@ -1,0 +1,35 @@
+# ~/.bashrc: read by INTERACTIVE shells. Non-login interactive shells (e.g.
+# running `bash` inside a terminal) read it directly; login shells get it via
+# ~/.bash_profile. Tracked in the dotfiles repo and symlinked by
+# install-macos.sh. See bash/README.md for the full loading order.
+#
+# Job: things that only matter when a person is typing: options, history,
+# completion, aliases, prompt. Environment belongs in profile.d/.
+
+# Not interactive (scripts, `bash -c`, scp)? Nothing to do here.
+[[ $- == *i* ]] || return 0
+
+# A non-login shell started outside a login shell (rare on macOS) never ran
+# ~/.bash_profile, so locate the repo here as well.
+if [[ -z "${DOTFILES_BASH:-}" ]] || [[ ! -d "$DOTFILES_BASH" ]]; then
+  __dotfiles_src="${BASH_SOURCE[0]}"
+  while [[ -L "$__dotfiles_src" ]]; do
+    __dotfiles_dir="$(cd -P "$(dirname "$__dotfiles_src")" && pwd)"
+    __dotfiles_src="$(readlink "$__dotfiles_src")"
+    [[ "$__dotfiles_src" == /* ]] || __dotfiles_src="$__dotfiles_dir/$__dotfiles_src"
+  done
+  DOTFILES_BASH="$(cd -P "$(dirname "$__dotfiles_src")" && pwd)"
+  export DOTFILES_BASH
+  unset __dotfiles_src __dotfiles_dir
+fi
+
+# Interactive fragments, in name order.
+for __f in "$DOTFILES_BASH"/bashrc.d/*.sh; do
+  [[ -r "$__f" ]] && . "$__f"
+done
+unset __f
+
+# Machine-specific interactive settings (untracked).
+[[ -r "$HOME/.bashrc.local" ]] && . "$HOME/.bashrc.local"
+
+return 0
