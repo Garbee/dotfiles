@@ -1,0 +1,7 @@
+# Starship prompt configuration (https://starship.rs/config/).
+#
+# Tracked in the dotfiles repository (public!) and symlinked to
+# ~/.config/starship.toml by install-macos.sh. Loaded by
+# bash/bashrc.d/50-prompt.sh.
+
+"$schema" = 'https://starship.rs/config-schema.json'

@@ -111,6 +111,8 @@ install_brew_packages() {
   # Newer than the Xcode Command Line Tools git; first on PATH after shellenv.
   brew_install "Git" git
   brew_install "bash-completion" bash-completion@2
+  # The shell prompt (see bash/bashrc.d/50-prompt.sh).
+  brew_install "Starship" starship
   brew_install "Neovim" neovim
   brew_install "jq" jq
   brew_install "ripgrep" ripgrep

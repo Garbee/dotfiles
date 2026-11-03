@@ -61,6 +61,8 @@ Bash picks its startup files based on two questions:
       - `20-history.sh`: history size, sharing between tabs, de-duplication.
       - `30-completion.sh`: Homebrew's `bash-completion@2`, if installed.
       - `40-aliases.sh`: aliases.
+      - `50-prompt.sh`: the Starship prompt, if installed. Its config is
+        `starship/starship.toml`, linked as `~/.config/starship.toml`.
    3. Sources **`~/.bashrc.local`** if it exists, for machine-specific
       interactive settings.
 4. You get a prompt.
