@@ -117,6 +117,10 @@ install_brew_packages() {
   brew_install "fd" fd
   brew_install "fzf" fzf
   brew_install "bat" bat
+  # GNU core utilities, g-prefixed (gls, gdate, ...) so the BSD ones that
+  # scripts here rely on stay first on PATH.
+  brew_install "coreutils" coreutils
+  brew_install "prettyping" prettyping
   brew_install "Node.js" node
   # Command-line installs from the Mac App Store.
   brew_install "mas" mas

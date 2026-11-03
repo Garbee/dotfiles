@@ -77,7 +77,7 @@ flags. If Linux support is added, detect the OS rather than assuming one.
 
 ## Scripts
 
-- `install-macos.sh` — macOS bootstrap (Xcode CLT, Homebrew, Homebrew bash, Git, jq, ripgrep, fd, fzf, bat, Node.js, mas, pam-reattach, Zed, Herdr,
+- `install-macos.sh` — macOS bootstrap (Xcode CLT, Homebrew, Homebrew bash, Git, jq, ripgrep, fd, fzf, bat, coreutils, prettyping, Node.js, mas, pam-reattach, Zed, Herdr,
   Neovim, 1Password + CLI, Secretive, IVPN, OrbStack, OBS Studio, BetterMouse, Display Pilot 2, Elgato Stream Deck + Wave Link, IINA, Nativ,
   UniFi Identity Endpoint, Wins, Docker Sandboxes (`sbx`, from the trusted `docker/tap` tap), GitHub CLI + gh-stack and gh-actions-lock extensions,
   Codex CLI, pnpm (standalone installer, without letting it edit shell files; PATH is set in `bash/profile.d/20-path.sh`), bash-completion, bash startup files (`bash/`, see `bash/README.md`), ~/.ssh/config symlink (`ssh/config`, which includes untracked `~/.ssh/config.local`; keepalives and connection sharing via `~/.ssh/sockets`, which the script creates),
