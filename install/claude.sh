@@ -57,6 +57,14 @@ configure_claude_code() {
   # No background auto-updates; `claude update` still works when run by hand.
   json_set "$settings" '["env", "DISABLE_AUTOUPDATER"]' '"1"'
 
+  # No built-in MCP servers: not the claude.ai connectors (Gmail, Drive,
+  # etc.), not the claude-artifacts server, and not the servers bundled
+  # with plugins (such as those synced from claude.ai); plugins' skills
+  # and commands still load. Servers added with `claude mcp add` still work.
+  json_set "$settings" '["disableClaudeAiConnectors"]' 'true'
+  json_set "$settings" '["env", "CLAUDE_CODE_ARTIFACT_MCP"]' '"false"'
+  json_set "$settings" '["env", "CLAUDE_CODE_SKIP_PLUGIN_MCP_SERVERS"]' '"1"'
+
   # Trust the home folder so Claude Code doesn't ask when started there.
   # Claude Code records an untrusted folder as false, so that may be replaced.
   local home_real
