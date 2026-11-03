@@ -365,8 +365,8 @@ configure_macos() {
   set_default "Finder: show status bar" com.apple.finder ShowStatusBar -bool true
   # Nlsv list, clmv column, icnv icon, glyv gallery. Folders that already have
   # their own saved view keep it.
-  set_default "Finder: list view by default" \
-    com.apple.finder FXPreferredViewStyle -string Nlsv
+  set_default "Finder: column view by default" \
+    com.apple.finder FXPreferredViewStyle -string clmv
   # PfHm is the home folder (PfDe Desktop, PfDo Documents, PfAF Recents).
   set_default "Finder: new windows open the home folder" \
     com.apple.finder NewWindowTarget -string PfHm
