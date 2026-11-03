@@ -32,6 +32,15 @@ MAS_APPS="
 6446933691 Postico 2
 6747497179 Marked 3
 1663047912 Screens 5
+1569813296 1Password for Safari
+6738342400 Tampermonkey
+361285480 Keynote
+361304891 Numbers
+361309726 Pages
+408981434 iMovie
+1631624924 Final Cut Pro
+6746516157 Compressor
+497799835 Xcode
 "
 
 # Succeeds if the App Store lists app ID as free.
