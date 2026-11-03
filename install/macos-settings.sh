@@ -4,7 +4,8 @@
 # trackpad, Language & Region, screenshots, save and print dialogs, Finder,
 # Finder sidebar, login items). Unlike every other step these are always set as
 # desired, without checking the current value first. The exception is Finder
-# sidebar favorites, which are only ever added, never removed or reordered.
+# sidebar favorites, which are only ever added, never removed or reordered,
+# and showing /Volumes, which needs sudo and so is confirmed first.
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
@@ -148,6 +149,32 @@ add_finder_favorites() {
         ;;
     esac
   done <<<"$output"
+}
+
+# Clear /Volumes' hidden flag, so Finder shows it (with hidden files off too).
+# It is owned by root, so this needs sudo and is confirmed first.
+show_volumes_folder() {
+  local label="Show the /Volumes folder"
+
+  # The fifth field of `ls -lO` lists the file flags, e.g. "hidden" or "-".
+  if ! ls -lOd /Volumes | awk '{ print $5 }' | grep -q hidden; then
+    note "/Volumes is already shown"
+    PRESENT+=("$label")
+    return 0
+  fi
+
+  if ! confirm "Show the /Volumes folder in Finder (requires sudo)?"; then
+    SKIPPED+=("$label (declined)")
+    return 0
+  fi
+
+  sudo_keepalive
+  if run sudo chflags nohidden /Volumes; then
+    DONE+=("$label")
+  else
+    note "Could not change /Volumes."
+    SKIPPED+=("$label (chflags failed)")
+  fi
 }
 
 configure_macos() {
@@ -396,6 +423,7 @@ configure_macos() {
   # Not a default: clears the folder's hidden flag. Setting it again is harmless.
   run chflags nohidden "$HOME/Library"
   DONE+=("Show the ~/Library folder")
+  show_volumes_folder
   # Finder reads these at launch; launchd restarts it.
   run killall Finder || true
 
