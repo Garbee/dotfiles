@@ -8,17 +8,6 @@
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
-# Write a user default. System settings are always written as desired, with
-# no check of the current value: writing the same value again is harmless.
-#
-#   set_default LABEL DOMAIN KEY TYPE VALUE   e.g. ... com.apple.dock tilesize -int 26
-set_default() {
-  local label="$1"
-  shift
-  run defaults write "$@"
-  DONE+=("$label")
-}
-
 # Make sure an app does not open at login: remove its entry from System
 # Settings > General > Login Items > Open at Login (matched by app path).
 # Removing an entry that isn't there does nothing.

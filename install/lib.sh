@@ -75,6 +75,18 @@ print_list() {
   printf '  - %s\n' "$@"
 }
 
+# Write a user default (macOS and app settings). These are always written as
+# desired, with no check of the current value: writing the same value again
+# is harmless.
+#
+#   set_default LABEL DOMAIN KEY TYPE VALUE   e.g. ... com.apple.dock tilesize -int 26
+set_default() {
+  local label="$1"
+  shift
+  run defaults write "$@"
+  DONE+=("$label")
+}
+
 BREW_PREFIX="/opt/homebrew"
 BREW="$BREW_PREFIX/bin/brew"
 BREW_BASH="$BREW_PREFIX/bin/bash"
