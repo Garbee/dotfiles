@@ -31,7 +31,6 @@ appStoreApps+=("1596706466") # Speediness
 appStoreApps+=("1559348223") # Power Plist Editor
 appStoreApps+=("499768540") # Power JSON Editor
 appStoreApps+=("1565766176") # Power YAML Editor
-appStoreApps+=("1569680330") # Rsyncinator
 appStoreApps+=("6446933691") # Postico 2
 appStoreApps+=("6747497179") # Marked 3
 appStoreApps+=("1663047912") # Screens 5
