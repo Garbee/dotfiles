@@ -252,8 +252,7 @@ configure_macos() {
   set_default "No period with double-space" \
     -g NSAutomaticPeriodSubstitutionEnabled -bool false
 
-  # System Settings > Trackpad > Point & Click. Takes effect after logging
-  # out and back in.
+  # System Settings > Trackpad. Takes effect after logging out and back in.
   log "Trackpad"
   set_default "Tap to click (built-in trackpad)" \
     com.apple.AppleMultitouchTrackpad Clicking -bool true
@@ -264,6 +263,61 @@ configure_macos() {
   set_default "Tap to click (this user)" -g com.apple.mouse.tapBehavior -int 1
   run defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
   DONE+=("Tap to click (this Mac)")
+  # Tracking speed (0 to 3) and Force Click.
+  set_default "Trackpad tracking speed 1" -g com.apple.trackpad.scaling -float 1
+  set_default "Force Click on" -g com.apple.trackpad.forceClick -bool true
+  # The rest are set for both the built-in and Bluetooth trackpads.
+  local trackpad
+  for trackpad in com.apple.AppleMultitouchTrackpad \
+    com.apple.driver.AppleBluetoothMultitouch.trackpad; do
+    # Click firmness medium (0 light, 1 medium, 2 firm), Force Click on.
+    set_default "Trackpad: medium click ($trackpad)" \
+      $trackpad FirstClickThreshold -int 1
+    set_default "Trackpad: medium Force Click ($trackpad)" \
+      $trackpad SecondClickThreshold -int 1
+    set_default "Trackpad: Force Click on ($trackpad)" \
+      $trackpad ForceSuppressed -bool false
+    # Secondary click with two fingers, not in a corner.
+    set_default "Trackpad: two-finger secondary click ($trackpad)" \
+      $trackpad TrackpadRightClick -bool true
+    set_default "Trackpad: no corner secondary click ($trackpad)" \
+      $trackpad TrackpadCornerSecondaryClick -int 0
+    # No Look Up on three-finger tap, no three-finger drag.
+    set_default "Trackpad: no three-finger tap ($trackpad)" \
+      $trackpad TrackpadThreeFingerTapGesture -int 0
+    set_default "Trackpad: no three-finger drag ($trackpad)" \
+      $trackpad TrackpadThreeFingerDrag -bool false
+    # Scroll & Zoom: scrolling, momentum, pinch, rotate, smart zoom.
+    set_default "Trackpad: scrolling ($trackpad)" \
+      $trackpad TrackpadScroll -bool true
+    set_default "Trackpad: horizontal scrolling ($trackpad)" \
+      $trackpad TrackpadHorizScroll -bool true
+    set_default "Trackpad: momentum scrolling ($trackpad)" \
+      $trackpad TrackpadMomentumScroll -bool true
+    set_default "Trackpad: pinch to zoom ($trackpad)" \
+      $trackpad TrackpadPinch -bool true
+    set_default "Trackpad: rotate ($trackpad)" \
+      $trackpad TrackpadRotate -bool true
+    set_default "Trackpad: smart zoom ($trackpad)" \
+      $trackpad TrackpadTwoFingerDoubleTapGesture -bool true
+    # More Gestures (2 is on): swipe between full-screen apps, Mission
+    # Control, App Expose, Launchpad, show Desktop; Notification Center
+    # from the right edge (3).
+    set_default "Trackpad: three-finger horizontal swipe ($trackpad)" \
+      $trackpad TrackpadThreeFingerHorizSwipeGesture -int 2
+    set_default "Trackpad: three-finger vertical swipe ($trackpad)" \
+      $trackpad TrackpadThreeFingerVertSwipeGesture -int 2
+    set_default "Trackpad: four-finger horizontal swipe ($trackpad)" \
+      $trackpad TrackpadFourFingerHorizSwipeGesture -int 2
+    set_default "Trackpad: four-finger vertical swipe ($trackpad)" \
+      $trackpad TrackpadFourFingerVertSwipeGesture -int 2
+    set_default "Trackpad: four-finger pinch ($trackpad)" \
+      $trackpad TrackpadFourFingerPinchGesture -int 2
+    set_default "Trackpad: five-finger pinch ($trackpad)" \
+      $trackpad TrackpadFiveFingerPinchGesture -int 2
+    set_default "Trackpad: Notification Center from the right edge ($trackpad)" \
+      $trackpad TrackpadTwoFingerFromRightEdgeSwipeGesture -int 3
+  done
 
   log "Language & Region"
   # Days are numbered from Sunday = 1. -dict-add keeps entries for any other
