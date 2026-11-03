@@ -76,5 +76,10 @@
 [feature]
 	manyFiles = true
 
+# Repositories under ~/Developer/frz are Frithuz projects: commit as the
+# Frithuz address. Before config.local, so its values still win.
+[includeIf "gitdir:~/Developer/frz/"]
+	path = ~/.config/git/frz.config
+
 [include]
 	path = ~/.config/git/config.local

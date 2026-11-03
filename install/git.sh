@@ -1,8 +1,10 @@
 # shellcheck shell=bash
 #
-# Global git config: symlink git/config to ~/.config/git/config, put this
-# machine's SSH signing key (a Secretive public key) in the untracked
-# ~/.config/git/config.local, and trust it in ~/.config/git/allowed_signers.
+# Global git config: symlink git/config to ~/.config/git/config (and
+# git/frz.config, which it includes for repositories under ~/Developer/frz, to
+# ~/.config/git/frz.config), put this machine's SSH signing key (a Secretive
+# public key) in the untracked ~/.config/git/config.local, and trust it in
+# ~/.config/git/allowed_signers for the email addresses of both.
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
@@ -35,6 +37,8 @@ link_git_config() {
     note "Its settings can move to ~/.config/git/config.local, which the"
     note "tracked config includes last (so they still take precedence)."
   fi
+  link_file "Git config for ~/Developer/frz" \
+    "$DOTFILES/git/frz.config" "$GIT_CONFIG_DIR/frz.config" || true
 }
 
 # Read a Secretive public key from the user. Prints the key, or nothing if
@@ -64,16 +68,32 @@ read_signing_key() {
   done
 }
 
-# Trust KEY (a public key: "<type> <base64> [comment]") for the user.email in
-# git/config, so git can verify this machine's own signatures. Appends a line
-# to the allowed signers file unless one with the same key is already there.
+# Whether ~/.config/git/allowed_signers has an uncommented line trusting
+# KEY_TYPE KEY_DATA for EMAIL (one of its comma-separated principals).
+#
+#   has_allowed_signer EMAIL KEY_TYPE KEY_DATA
+has_allowed_signer() {
+  local email="$1" key="$2 $3" principals rest
+  [[ -f "$GIT_ALLOWED_SIGNERS" ]] || return 1
+  while read -r principals rest; do
+    [[ -z "$principals" ]] || [[ "$principals" == \#* ]] && continue
+    case " $rest " in *" $key "*) ;; *) continue ;; esac
+    case ",$principals," in *",$email,"*) return 0 ;; esac
+  done <"$GIT_ALLOWED_SIGNERS"
+  return 1
+}
+
+# Trust KEY (a public key: "<type> <base64> [comment]") for each user.email
+# the tracked config uses (git/config's, and git/frz.config's for
+# ~/Developer/frz), so git can verify this machine's own signatures. Appends a
+# line per address to the allowed signers file, unless one trusting the same
+# key for that address is already there.
 #
 #   add_allowed_signer KEY
 add_allowed_signer() {
-  local label="Git allowed signer" key_type key_data email line
+  local label="Git allowed signer" key_type key_data email line config
+
   read -r key_type key_data _ <<<"$1"
-  email="$(git config --file "$DOTFILES/git/config" --get user.email)"
-  line="$email namespaces=\"git\" $key_type $key_data"
 
   if [[ -L "$GIT_ALLOWED_SIGNERS" ]] ||
     { [[ -e "$GIT_ALLOWED_SIGNERS" ]] && [[ ! -f "$GIT_ALLOWED_SIGNERS" ]]; }; then
@@ -82,21 +102,24 @@ add_allowed_signer() {
     return 0
   fi
 
-  # Any uncommented line with this key, whatever its principals.
-  if [[ -f "$GIT_ALLOWED_SIGNERS" ]] &&
-    grep -v '^[[:space:]]*#' "$GIT_ALLOWED_SIGNERS" | grep -qF -- "$key_type $key_data"; then
-    note "Signing key already trusted in ~/.config/git/allowed_signers"
-    PRESENT+=("$label")
-    return 0
-  fi
+  for config in "$DOTFILES/git/config" "$DOTFILES/git/frz.config"; do
+    email="$(git config --file "$config" --get user.email)" || continue
+    line="$email namespaces=\"git\" $key_type $key_data"
 
-  if ((DRY_RUN)); then
-    note "[dry-run] append to ~/.config/git/allowed_signers: $line"
-  else
-    printf '%s\n' "$line" >>"$GIT_ALLOWED_SIGNERS"
-    note "Trusted the signing key for $email in ~/.config/git/allowed_signers"
-  fi
-  DONE+=("$label ($email)")
+    if has_allowed_signer "$email" "$key_type" "$key_data"; then
+      note "Signing key already trusted for $email in ~/.config/git/allowed_signers"
+      PRESENT+=("$label ($email)")
+      continue
+    fi
+
+    if ((DRY_RUN)); then
+      note "[dry-run] append to ~/.config/git/allowed_signers: $line"
+    else
+      printf '%s\n' "$line" >>"$GIT_ALLOWED_SIGNERS"
+      note "Trusted the signing key for $email in ~/.config/git/allowed_signers"
+    fi
+    DONE+=("$label ($email)")
+  done
 }
 
 # The user.signingkey currently in ~/.config/git/config.local (empty if none).
