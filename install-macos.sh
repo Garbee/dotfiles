@@ -3,11 +3,15 @@
 # macOS bootstrap.
 #
 # Safe to re-run: every step checks the current state first and skips anything
-# already done. Nothing is overwritten or deleted. Privileged or system-wide
-# changes (Touch ID for sudo, the firewall, editing /etc/shells, changing the
-# login shell) are confirmed first. The exception is macOS settings
-# (appearance, Dock, keyboard, menu bar, login items, etc.), which are always
-# set to the desired values.
+# already done. Nothing is overwritten or deleted. The exception is macOS
+# settings (appearance, Dock, keyboard, menu bar, login items, etc.), which are
+# always set to the desired values.
+#
+# It asks only two things: the administrator password, at the start (kept
+# fresh for the whole run, so the privileged steps such as Touch ID for sudo,
+# the firewall, App Store apps and the login shell just run), and the git
+# signing key, right after the Homebrew packages, once Secretive is installed.
+# After that it runs unattended.
 #
 # The steps live in install/ (one file per area, sourced below); this file
 # parses options, loads them and runs them in order.
@@ -58,7 +62,7 @@ fi
 # The repository this script lives in (symlink targets point into it).
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-for module in lib xcode homebrew gh mas bash starship neovim claude codex pnpm ssh git macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
+for module in lib xcode homebrew gh mas bash starship neovim claude codex pnpm ssh dotfiles-remote git macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
   # shellcheck source=/dev/null
   source "$DOTFILES/install/$module.sh"
 done
@@ -70,19 +74,28 @@ done
 main() {
   ((DRY_RUN)) && printf 'Dry run: no changes will be made.\n'
 
+  # The administrator password, once, up front.
+  sudo_keepalive
+
   install_xcode_clt
   install_homebrew
   install_brew_packages
+  # The only other question, as soon as Secretive (a Homebrew cask) is there
+  # to create the key in.
+  ask_git_signing_key
   install_gh_extensions
   install_mas_apps
   link_bash_files
+  create_hushlogin
   link_starship_config
   link_neovim_config
   install_claude_code
   configure_claude_code
   install_codex
+  configure_codex
   install_pnpm
   link_ssh_config
+  use_ssh_dotfiles_remote
   link_git_config
   configure_git_signing_key
   configure_macos

@@ -54,6 +54,9 @@ configure_claude_code() {
   json_set "$settings" '["attribution", "pr"]' '""'
   json_set "$settings" '["attribution", "sessionUrl"]' 'false'
 
+  # No background auto-updates; `claude update` still works when run by hand.
+  json_set "$settings" '["env", "DISABLE_AUTOUPDATER"]' '"1"'
+
   # Trust the home folder so Claude Code doesn't ask when started there.
   # Claude Code records an untrusted folder as false, so that may be replaced.
   local home_real

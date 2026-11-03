@@ -17,3 +17,20 @@ link_bash_files() {
     fi
   done
 }
+
+# An empty ~/.hushlogin stops login shells from printing the "Last login"
+# line (and any message of the day). An existing one is left as is.
+create_hushlogin() {
+  local label="~/.hushlogin"
+
+  log "Hush login"
+
+  if [[ -e "$HOME/.hushlogin" ]] || [[ -L "$HOME/.hushlogin" ]]; then
+    note "$label already exists"
+    PRESENT+=("$label")
+    return 0
+  fi
+
+  run touch "$HOME/.hushlogin"
+  DONE+=("$label (no \"Last login\" message)")
+}

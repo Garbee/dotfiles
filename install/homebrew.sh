@@ -15,9 +15,10 @@ install_homebrew() {
     DONE+=("Homebrew")
     return 0
   else
-    note "Running the official Homebrew installer (it needs your password)."
-    sudo_keepalive
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    have_sudo "Homebrew" || return 0
+    # NONINTERACTIVE: no "Press RETURN" prompt; it uses the cached sudo.
+    note "Running the official Homebrew installer."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     DONE+=("Homebrew")
   fi
 
@@ -33,8 +34,8 @@ install_homebrew() {
 #   --app PATH     The package installs an app at PATH. If PATH already exists
 #                  but wasn't installed by Homebrew, leave it alone: the install
 #                  would fail on it (or need --force, which would replace it).
-#   --sudo         The installer needs an administrator password (e.g. a .pkg
-#                  installer); ask before running it.
+#   --sudo         The installer needs sudo (e.g. a .pkg installer); skip it if
+#                  sudo isn't available without a password.
 brew_install() {
   local label="$1" package="$2" app="" needs_sudo=0
   local versions name
@@ -75,12 +76,9 @@ brew_install() {
     return 0
   fi
 
-  if ((needs_sudo)) &&
-    ! confirm "Install $label? Its installer needs your administrator password."; then
-    SKIPPED+=("$label (declined: needs administrator password)")
-    return 0
+  if ((needs_sudo)); then
+    have_sudo "$label" || return 0
   fi
-  ((needs_sudo)) && sudo_keepalive
 
   run "$BREW" install -y "$package"
   DONE+=("$label")

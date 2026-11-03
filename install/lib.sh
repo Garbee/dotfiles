@@ -1,13 +1,13 @@
 # shellcheck shell=bash
 #
-# Shared helpers: logging, dry-run, prompts, the run summary, symlinks and
+# Shared helpers: logging, dry-run, sudo, the run summary, symlinks and
 # JSON edits. Bash 3.2 compatible, like everything in this directory.
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
 DONE=()    # changes made by this run
 PRESENT=() # already in place
-SKIPPED=() # not done (declined, conflict, or non-interactive)
+SKIPPED=() # not done (conflict, missing dependency, or no sudo)
 
 log() { printf '\n==> %s\n' "$*"; }
 note() { printf '    %s\n' "$*"; }
@@ -21,26 +21,11 @@ run() {
   fi
 }
 
-# Ask a yes/no question; defaults to no. Non-interactive runs answer no.
-confirm() {
-  if ((DRY_RUN)); then
-    note "[dry-run] would ask: $1"
-    return 0
-  fi
-  if [[ ! -t 0 ]]; then
-    note "Not running interactively; skipping: $1"
-    return 1
-  fi
-  local reply
-  read -r -p "    $1 [y/N] " reply
-  [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
-}
-
-# Ask for the administrator password (unless sudo already has it), then keep
-# sudo's cached credentials fresh in the background until this script exits,
-# so later steps and long installers don't ask again. Call it after the user
-# has agreed to a privileged step, right before its first sudo. Does nothing
-# in dry-run mode, or if the keepalive is already running.
+# Ask for the administrator password once (unless sudo already has it), then
+# keep sudo's cached credentials fresh in the background until this script
+# exits, so the privileged steps run without asking again. install-macos.sh
+# calls it at the start of the run. Does nothing in dry-run mode, or if the
+# keepalive is already running.
 SUDO_KEEPALIVE_PID=""
 sudo_keepalive() {
   ((DRY_RUN)) && return 0
@@ -49,8 +34,8 @@ sudo_keepalive() {
   fi
 
   if ! sudo -v; then
-    # The step's own sudo will ask again, and report if that fails too.
-    note "Could not authenticate with sudo."
+    # Each privileged step checks have_sudo and skips itself.
+    note "Could not authenticate with sudo; privileged steps will be skipped."
     return 0
   fi
 
@@ -65,6 +50,18 @@ sudo_keepalive() {
   ) </dev/null >/dev/null 2>&1 &
   SUDO_KEEPALIVE_PID=$!
   trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+}
+
+# Succeeds if sudo can run without asking for a password (always, in dry-run
+# mode). Otherwise reports LABEL as skipped. Call it before a privileged step.
+#
+#   have_sudo LABEL
+have_sudo() {
+  ((DRY_RUN)) && return 0
+  sudo -n true 2>/dev/null && return 0
+  note "sudo is not available without a password; skipping."
+  SKIPPED+=("$1 (needs sudo)")
+  return 1
 }
 
 print_list() {

@@ -16,17 +16,16 @@ set_login_shell() {
   # chsh only allows shells listed in /etc/shells.
   if grep -qxF "$BREW_BASH" /etc/shells; then
     note "$BREW_BASH is already listed in /etc/shells"
-  elif confirm "Add $BREW_BASH to /etc/shells (requires sudo)?"; then
+  elif have_sudo "Add $BREW_BASH to /etc/shells"; then
     if ((DRY_RUN)); then
       note "[dry-run] append $BREW_BASH to /etc/shells"
     else
-      sudo_keepalive
       printf '%s\n' "$BREW_BASH" | sudo tee -a /etc/shells >/dev/null
     fi
     DONE+=("Added $BREW_BASH to /etc/shells")
   else
     note "Not added; cannot change the login shell without it."
-    SKIPPED+=("Add $BREW_BASH to /etc/shells" "Change login shell")
+    SKIPPED+=("Change login shell")
     return 0
   fi
 
@@ -40,10 +39,12 @@ set_login_shell() {
     return 0
   fi
 
-  if confirm "Change login shell for $user from $current to $BREW_BASH?"; then
-    run chsh -s "$BREW_BASH"
+  # Through sudo, so chsh doesn't ask for the password again.
+  have_sudo "Change login shell (still $current)" || return 0
+  if run sudo chsh -s "$BREW_BASH" "$user"; then
     DONE+=("Login shell changed from $current to $BREW_BASH")
   else
+    note "chsh failed; the login shell is still $current."
     SKIPPED+=("Change login shell (still $current)")
   fi
 }

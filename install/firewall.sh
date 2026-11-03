@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 #
 # The macOS application firewall (System Settings > Network > Firewall).
-# Turning it on needs sudo, so it is confirmed first.
+# Turning it on needs sudo (cached at the start of the run).
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
@@ -27,12 +27,7 @@ enable_firewall() {
     return 0
   fi
 
-  if ! confirm "Turn on the firewall (requires sudo)?"; then
-    SKIPPED+=("$label (declined)")
-    return 0
-  fi
-
-  sudo_keepalive
+  have_sudo "$label" || return 0
   if run sudo "$SOCKETFILTERFW" --setglobalstate on; then
     DONE+=("$label on")
   else

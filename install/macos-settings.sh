@@ -5,7 +5,7 @@
 # Finder sidebar, login items). Unlike every other step these are always set as
 # desired, without checking the current value first. The exception is Finder
 # sidebar favorites, which are only ever added, never removed or reordered,
-# and showing /Volumes, which needs sudo and so is confirmed first.
+# and showing /Volumes, which needs sudo (cached at the start of the run).
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
@@ -152,7 +152,7 @@ add_finder_favorites() {
 }
 
 # Clear /Volumes' hidden flag, so Finder shows it (with hidden files off too).
-# It is owned by root, so this needs sudo and is confirmed first.
+# It is owned by root, so this needs sudo.
 show_volumes_folder() {
   local label="Show the /Volumes folder"
 
@@ -163,12 +163,7 @@ show_volumes_folder() {
     return 0
   fi
 
-  if ! confirm "Show the /Volumes folder in Finder (requires sudo)?"; then
-    SKIPPED+=("$label (declined)")
-    return 0
-  fi
-
-  sudo_keepalive
+  have_sudo "$label" || return 0
   if run sudo chflags nohidden /Volumes; then
     DONE+=("$label")
   else

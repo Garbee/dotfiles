@@ -70,15 +70,11 @@ enable_touch_id_sudo() {
 
   note "Lines to add to $SUDO_LOCAL:"
   printf '      %s\n' "${add[@]}"
-  if ! confirm "Enable Touch ID for sudo (requires sudo)?"; then
-    SKIPPED+=("$label (declined)")
-    return 0
-  fi
+  have_sudo "$label" || return 0
 
   if ((DRY_RUN)); then
     note "[dry-run] append the lines above to $SUDO_LOCAL"
   else
-    sudo_keepalive
     # Appends to an existing file (keeping its other lines) or creates it.
     {
       [[ -e "$SUDO_LOCAL" ]] ||

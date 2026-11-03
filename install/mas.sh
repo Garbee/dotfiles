@@ -2,45 +2,60 @@
 #
 # Mac App Store apps, installed with mas (installed by install_brew_packages).
 #
-# mas needs root to install, so the whole batch is confirmed first. Apps
-# already on this Apple Account are installed with `mas install`; free apps
-# that aren't yet are "gotten" with `mas get`. Paid apps that haven't been
-# bought are skipped: buy them in the App Store and re-run.
+# mas needs root to install; it uses the sudo cached at the start of the run.
+# You must be signed in to the App Store app. Apps already on this Apple
+# Account are installed with `mas install`; free apps that aren't yet are
+# "gotten" with `mas get`. Paid apps that haven't been bought are skipped: buy
+# them in the App Store and re-run.
 #
 # Sourced by install-macos.sh; not meant to be run on its own.
 
 MAS="$BREW_PREFIX/bin/mas"
 
-# The apps to install, one "ID Name" per line. `mas search NAME` or
-# `mas list` show the IDs.
-MAS_APPS="
-1365531024 1Blocker
-1622835804 Kagi for Safari
-1346247457 Endel
-1436994560 Portal
-1508732804 Soulver
-1452453066 Hidden Bar
-470158793 Keka
-411643860 DaisyDisk
-403504866 PCalc
-937984704 Amphetamine
-1596706466 Speediness
-1559348223 Power Plist Editor
-499768540 Power JSON Editor
-1565766176 Power YAML Editor
-1569680330 Rsyncinator
-6446933691 Postico 2
-6747497179 Marked 3
-1663047912 Screens 5
-1569813296 1Password for Safari
-6738342400 Tampermonkey
-361285480 Keynote
-361304891 Numbers
-361309726 Pages
-408981434 iMovie
-1631624924 Final Cut Pro
-6746516157 Compressor
-"
+# The apps to install, one per line, in the format docs/mas-list.md prints from
+# `mas list`, so its output can be pasted in here as is. The lines are read as
+# data (the ID and, after the #, the name), not run. Xcode is left out on
+# purpose: drop its line from pasted output.
+MAS_APPS='
+appStoreApps+=("1365531024") # 1Blocker
+appStoreApps+=("1622835804") # Kagi for Safari
+appStoreApps+=("1346247457") # Endel
+appStoreApps+=("1436994560") # Portal
+appStoreApps+=("1508732804") # Soulver
+appStoreApps+=("1452453066") # Hidden Bar
+appStoreApps+=("470158793") # Keka
+appStoreApps+=("411643860") # DaisyDisk
+appStoreApps+=("403504866") # PCalc
+appStoreApps+=("937984704") # Amphetamine
+appStoreApps+=("1596706466") # Speediness
+appStoreApps+=("1559348223") # Power Plist Editor
+appStoreApps+=("499768540") # Power JSON Editor
+appStoreApps+=("1565766176") # Power YAML Editor
+appStoreApps+=("1569680330") # Rsyncinator
+appStoreApps+=("6446933691") # Postico 2
+appStoreApps+=("6747497179") # Marked 3
+appStoreApps+=("1663047912") # Screens 5
+appStoreApps+=("1569813296") # 1Password for Safari
+appStoreApps+=("6738342400") # Tampermonkey
+appStoreApps+=("361285480") # Keynote
+appStoreApps+=("361304891") # Numbers
+appStoreApps+=("361309726") # Pages
+appStoreApps+=("408981434") # iMovie
+appStoreApps+=("1631624924") # Final Cut Pro
+appStoreApps+=("6746516157") # Compressor
+'
+
+# Print MAS_APPS as "ID Name" lines.
+mas_app_list() {
+  local line pattern='^appStoreApps\+=\("([0-9]+)"\)[[:space:]]*#[[:space:]]*(.*)$'
+  while IFS= read -r line; do
+    if [[ "$line" =~ $pattern ]]; then
+      printf '%s %s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+    elif [[ "$line" =~ [^[:space:]] ]]; then
+      note "install/mas.sh: ignoring unrecognized line: $line" >&2
+    fi
+  done <<<"$MAS_APPS"
+}
 
 # Succeeds if the App Store lists app ID as free.
 mas_app_is_free() {
@@ -76,7 +91,7 @@ install_mas_apps() {
     else
       missing+="$id $name"$'\n'
     fi
-  done <<<"$MAS_APPS"
+  done <<<"$(mas_app_list)"
 
   [[ -n "$missing" ]] || return 0
 
@@ -84,15 +99,7 @@ install_mas_apps() {
   while read -r id name; do
     [[ -n "$id" ]] && note "  $name"
   done <<<"$missing"
-  note "You must be signed in to the App Store app."
-  if ! confirm "Install these from the App Store (requires sudo)?"; then
-    while read -r id name; do
-      [[ -n "$id" ]] && SKIPPED+=("App Store: $name (declined)")
-    done <<<"$missing"
-    return 0
-  fi
-
-  sudo_keepalive
+  have_sudo "Mac App Store apps" || return 0
   # mas reads from stdin; keep it away from the list being read.
   while read -r id name <&3; do
     [[ -n "$id" ]] || continue

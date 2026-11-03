@@ -79,8 +79,8 @@ main() {
   fi
 
   # When piped into bash, stdin is the script itself, and install-macos.sh
-  # would treat the run as non-interactive and decline every question. Give it
-  # the terminal instead, if there is one.
+  # would treat the run as non-interactive and couldn't ask for the password
+  # or the git signing key. Give it the terminal instead, if there is one.
   if { : </dev/tty; } 2>/dev/null; then
     /bin/bash "$DOTFILES_DIR/install-macos.sh" "$@" </dev/tty
   else

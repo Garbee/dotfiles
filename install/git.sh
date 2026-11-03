@@ -9,11 +9,12 @@
 GIT_CONFIG_DIR="$HOME/.config/git"
 GIT_CONFIG_LOCAL="$GIT_CONFIG_DIR/config.local"
 # Written when no key is given yet. Signing fails until it is replaced, and
-# re-running this script offers to replace it.
+# re-running this script asks for the key again.
 GIT_SIGNINGKEY_PLACEHOLDER="key::REPLACE-WITH-SECRETIVE-PUBLIC-KEY"
 # Keys trusted when verifying signatures (gpg.ssh.allowedSignersFile in
 # git/config). Untracked; this script adds this machine's signing key to it.
 GIT_ALLOWED_SIGNERS="$GIT_CONFIG_DIR/allowed_signers"
+SECRETIVE_APP="/Applications/Secretive.app"
 
 link_git_config() {
   log "Git config"
@@ -98,20 +99,55 @@ add_allowed_signer() {
   DONE+=("$label ($email)")
 }
 
+# The user.signingkey currently in ~/.config/git/config.local (empty if none).
+# Fails if config.local is not a regular file.
+git_signing_key_current() {
+  if [[ -L "$GIT_CONFIG_LOCAL" ]] || { [[ -e "$GIT_CONFIG_LOCAL" ]] && [[ ! -f "$GIT_CONFIG_LOCAL" ]]; }; then
+    return 1
+  fi
+  if [[ -f "$GIT_CONFIG_LOCAL" ]]; then
+    git config --file "$GIT_CONFIG_LOCAL" --get user.signingkey || true
+  fi
+}
+
+# The key pasted by ask_git_signing_key, and whether it asked at all.
+GIT_SIGNING_KEY_INPUT=""
+GIT_SIGNING_KEY_ASKED=0
+
+# Ask for the Secretive public key, if one is still needed, early in the run
+# (right after the Homebrew packages, which include Secretive), so the rest of
+# the run doesn't stop to wait for it. Opens Secretive to create the key in.
+# configure_git_signing_key uses the answer.
+ask_git_signing_key() {
+  local current
+
+  current="$(git_signing_key_current)" || return 0
+  if [[ -n "$current" ]] && [[ "$current" != "$GIT_SIGNINGKEY_PLACEHOLDER" ]]; then
+    return 0
+  fi
+  ((DRY_RUN)) && return 0
+  [[ -t 0 ]] || return 0
+
+  log "Git signing key"
+  if [[ -d "$SECRETIVE_APP" ]]; then
+    open "$SECRETIVE_APP" || true
+  else
+    note "$SECRETIVE_APP not found; paste a key from another source, or press"
+    note "Enter to skip and re-run this script later."
+  fi
+  GIT_SIGNING_KEY_INPUT="$(read_signing_key)"
+  GIT_SIGNING_KEY_ASKED=1
+}
+
 configure_git_signing_key() {
   local label="Git signing key" current key
 
   log "$label"
 
-  if [[ -L "$GIT_CONFIG_LOCAL" ]] || { [[ -e "$GIT_CONFIG_LOCAL" ]] && [[ ! -f "$GIT_CONFIG_LOCAL" ]]; }; then
+  if ! current="$(git_signing_key_current)"; then
     note "~/.config/git/config.local is not a regular file; leaving it alone."
     SKIPPED+=("$label (~/.config/git/config.local is not a regular file)")
     return 0
-  fi
-
-  current=""
-  if [[ -f "$GIT_CONFIG_LOCAL" ]]; then
-    current="$(git config --file "$GIT_CONFIG_LOCAL" --get user.signingkey || true)"
   fi
   if [[ -n "$current" ]] && [[ "$current" != "$GIT_SIGNINGKEY_PLACEHOLDER" ]]; then
     note "Already set in ~/.config/git/config.local"
@@ -129,21 +165,15 @@ configure_git_signing_key() {
   [[ -n "$current" ]] && note "~/.config/git/config.local still has the placeholder key."
 
   if ((DRY_RUN)); then
-    note "[dry-run] would ask for a Secretive public key and set user.signingkey"
-    note "[dry-run] in ~/.config/git/config.local (or a placeholder if none is given),"
-    note "[dry-run] and trust it in ~/.config/git/allowed_signers"
+    note "[dry-run] would ask for a Secretive public key (after the Homebrew packages)"
+    note "[dry-run] and set user.signingkey in ~/.config/git/config.local (or a"
+    note "[dry-run] placeholder if none is given), and trust it in"
+    note "[dry-run] ~/.config/git/allowed_signers"
     DONE+=("$label")
     return 0
   fi
 
-  if [[ ! -t 0 ]]; then
-    note "Not running interactively; can't ask for the key."
-    SKIPPED+=("$label (not interactive; re-run in a terminal)")
-    return 0
-  fi
-
-  key="$(read_signing_key)"
-
+  key="$GIT_SIGNING_KEY_INPUT"
   if [[ -n "$key" ]]; then
     git config --file "$GIT_CONFIG_LOCAL" user.signingkey "key::$key"
     note "Set user.signingkey in ~/.config/git/config.local"
@@ -152,16 +182,14 @@ configure_git_signing_key() {
     return 0
   fi
 
+  ((GIT_SIGNING_KEY_ASKED)) || note "Not running interactively; couldn't ask for the key."
   if [[ -n "$current" ]]; then
     note "Leaving the placeholder; re-run this script to add the key."
-    SKIPPED+=("$label (placeholder still in ~/.config/git/config.local)")
-  elif confirm "Leave a placeholder in ~/.config/git/config.local to fill in later?"; then
-    git config --file "$GIT_CONFIG_LOCAL" user.signingkey "$GIT_SIGNINGKEY_PLACEHOLDER"
-    note "Commits and tags will fail to sign until user.signingkey is set to"
-    note "\"key::<public key>\" there (or this script is re-run)."
-    SKIPPED+=("$label (placeholder in ~/.config/git/config.local)")
   else
-    note "No key set; commits and tags will fail to sign until one is."
-    SKIPPED+=("$label (not set)")
+    git config --file "$GIT_CONFIG_LOCAL" user.signingkey "$GIT_SIGNINGKEY_PLACEHOLDER"
+    note "Left a placeholder in ~/.config/git/config.local. Commits and tags will"
+    note "fail to sign until user.signingkey is set to \"key::<public key>\""
+    note "there (or this script is re-run)."
   fi
+  SKIPPED+=("$label (placeholder in ~/.config/git/config.local)")
 }
