@@ -204,6 +204,13 @@ configure_macos() {
   log "Menu bar"
   set_default "Menu bar clock shows seconds" \
     com.apple.menuextra.clock ShowSeconds -bool true
+  set_default "Menu bar clock shows AM/PM" \
+    com.apple.menuextra.clock ShowAMPM -bool true
+  set_default "Menu bar clock shows the day of the week" \
+    com.apple.menuextra.clock ShowDayOfWeek -bool true
+  # Show date: 0 "When space allows", 1 Always, 2 Never.
+  set_default "Menu bar clock shows the date when space allows" \
+    com.apple.menuextra.clock ShowDate -int 0
   set_default "Menu bar: no battery" \
     com.apple.controlcenter "NSStatusItem VisibleCC Battery" -bool false
   set_default "Menu bar: no Wi-Fi" \
