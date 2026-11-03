@@ -156,6 +156,12 @@ configure_macos() {
   log "Appearance"
   # Accent colors: -1 graphite, 0 red, 1 orange, 2 yellow, 3 green, 4 blue,
   # 5 purple, 6 pink. The highlight color follows it unless set separately.
+  # Dark mode. Choosing Dark in System Settings also turns off Auto, which would
+  # otherwise switch back to light during the day. Fully applies after logging
+  # out and back in.
+  set_default "Dark mode" -g AppleInterfaceStyle -string Dark
+  set_default "Dark mode: don't switch automatically" \
+    -g AppleInterfaceStyleSwitchesAutomatically -bool false
   set_default "Accent color green" -g AppleAccentColor -int 3
   # Icon & widget style: Regular, Clear or Tinted, then Light, Dark or Automatic.
   set_default "Icon style dark" -g AppleIconAppearanceTheme -string RegularDark
