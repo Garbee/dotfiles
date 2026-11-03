@@ -168,6 +168,14 @@ configure_macos() {
   # "Allow wallpaper tinting in windows" off.
   set_default "Wallpaper tinting in windows off" \
     -g AppleReduceDesktopTinting -bool true
+  # Sidebars (Finder, Mail, etc.) attached to the window edge instead of the
+  # floating Liquid Glass panel. Hidden settings, no System Settings switch;
+  # NSConvolutionOverride1 goes with the first. Apps pick them up when they
+  # next start.
+  set_default "Sidebars not floating (Liquid Glass)" \
+    -g NSSplitViewItemSidebarDefaultsToFloatingAppearance -bool false
+  set_default "Sidebars not floating (Liquid Glass): convolution override" \
+    -g NSConvolutionOverride1 -float 10
 
   # System Settings > Desktop & Dock.
   log "Desktop & Dock"
