@@ -77,6 +77,13 @@ flags. If Linux support is added, detect the OS rather than assuming one.
 
 ## Scripts
 
+- `init.sh` — bootstrap for a new Mac, meant to be piped from curl: installs
+  the Xcode Command Line Tools (for git) if needed, clones the repository to
+  `~/.dotfiles` unless something is already there (an existing checkout is
+  used as is, anything else stops the script), then runs `install-macos.sh`
+  with the same options and the terminal as its input. Supports `--dry-run`.
+  Bash 3.2 compatible, with everything inside `main` so a partial download
+  runs nothing.
 - `install-macos.sh` — macOS bootstrap (Xcode CLT, Homebrew, Homebrew bash, Git, jq, ripgrep, fd, fzf, bat, coreutils, prettyping, Node.js, mas, pam-reattach, Zed, Herdr,
   Neovim with its config symlinked to ~/.config/nvim/init.lua (`nvim/init.lua`) and tree-sitter-cli for its parsers, 1Password + CLI, Secretive, IVPN, OrbStack, OBS Studio, BetterMouse, Display Pilot 2, Elgato Stream Deck + Wave Link, IINA, Nativ,
   UniFi Identity Endpoint, Wins, Mac App Store apps (`install/mas.sh`: 1Blocker, Kagi, Endel, Portal, Soulver, Hidden Bar, Keka, DaisyDisk, PCalc, Amphetamine, Speediness, Power Plist/JSON/YAML Editor, Rsyncinator, Postico 2, Marked 2, Screens 5; asks first, since mas needs sudo), Docker Sandboxes (`sbx`, from the trusted `docker/tap` tap), GitHub CLI + gh-stack and gh-actions-lock extensions,
