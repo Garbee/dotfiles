@@ -1,0 +1,56 @@
+# syntax=docker/sandbox-kit:3
+#
+# Docker Sandboxes mixin: git identity, with a second email address for the
+# repositories under one directory, like git/config's includeIf for
+# ~/Developer/frz. Sandboxes don't see the host's git config, but bind-mounted
+# workspaces keep their host paths, so the same gitdir rule works inside.
+#
+# The values come in as arguments, so nothing personal is tracked here:
+# install/sbx.sh fills them in from git/config and git/frz.config when it
+# writes ~/.sbxenv.yaml. An empty argument leaves that setting alone.
+schemaVersion: "3"
+displayName: Git identity
+description: Git user name and email, with another email for repositories under one directory
+kind: mixin
+
+args:
+  name:
+    default: ""
+    description: user.name
+    env: GIT_IDENTITY_NAME
+  email:
+    default: ""
+    description: user.email
+    env: GIT_IDENTITY_EMAIL
+  frzDir:
+    default: ""
+    description: Absolute host path whose repositories use frzEmail instead (e.g. /Users/me/Developer/frz)
+    env: GIT_IDENTITY_FRZ_DIR
+  frzEmail:
+    default: ""
+    description: user.email for repositories under frzDir
+    env: GIT_IDENTITY_FRZ_EMAIL
+
+capabilities:
+  # System config, like the devcontainer kits' signing setup, so it applies to
+  # every user and leaves ~/.gitconfig to the agent.
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            set -e
+            if [ -n "$GIT_IDENTITY_NAME" ]; then
+              git config --system user.name "$GIT_IDENTITY_NAME"
+            fi
+            if [ -n "$GIT_IDENTITY_EMAIL" ]; then
+              git config --system user.email "$GIT_IDENTITY_EMAIL"
+            fi
+            if [ -n "$GIT_IDENTITY_FRZ_DIR" ] && [ -n "$GIT_IDENTITY_FRZ_EMAIL" ]; then
+              mkdir -p /etc/git
+              git config --file /etc/git/frz.inc user.email "$GIT_IDENTITY_FRZ_EMAIL"
+              chmod 0644 /etc/git/frz.inc
+              git config --system "includeIf.gitdir:${GIT_IDENTITY_FRZ_DIR%/}/.path" /etc/git/frz.inc
+            fi
+          user: "0"
+          env: [GIT_IDENTITY_NAME, GIT_IDENTITY_EMAIL, GIT_IDENTITY_FRZ_DIR, GIT_IDENTITY_FRZ_EMAIL]
+          description: Set the git identity, with the second email under frzDir

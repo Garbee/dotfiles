@@ -62,7 +62,7 @@ fi
 # The repository this script lives in (symlink targets point into it).
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-for module in lib xcode homebrew gh mas bash starship neovim claude codex pnpm ssh dotfiles-remote git macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
+for module in lib xcode homebrew gh mas bash starship neovim claude codex pnpm ssh dotfiles-remote git sbx macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
   # shellcheck source=/dev/null
   source "$DOTFILES/install/$module.sh"
 done
@@ -98,6 +98,7 @@ main() {
   use_ssh_dotfiles_remote
   link_git_config
   configure_git_signing_key
+  configure_sbx_defaults
   configure_macos
   configure_wins
   install_color_palettes
@@ -105,6 +106,9 @@ main() {
   enable_firewall
   enable_touch_id_sudo
   set_login_shell
+  # Last: it needs a Docker sign-in, which it asks for (with 1Password
+  # installed to sign in with), so the rest of the run is unattended.
+  allow_sbx_kit_sources
 
   log "Summary"
   # ${arr[@]+...} avoids "unbound variable" for empty arrays in bash 3.2.
