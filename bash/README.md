@@ -60,6 +60,10 @@ Bash picks its startup files based on two questions:
       - `10-options.sh`: `shopt` options.
       - `20-history.sh`: history size, sharing between tabs, de-duplication.
       - `30-completion.sh`: Homebrew's `bash-completion@2`, if installed.
+      - `35-readline.sh`: line editing: Up/Down search history for lines
+        starting with what's typed, and friendlier Tab completion.
+      - `36-fzf.sh`: fzf's key bindings, if installed: Ctrl-R history
+        search, Ctrl-T file paths, Alt-C directories, `**<Tab>` completion.
       - `40-aliases.sh`: aliases.
       - `50-prompt.sh`: the Starship prompt, if installed. Its config is
         `starship/starship.toml`, linked as `~/.config/starship.toml`.
