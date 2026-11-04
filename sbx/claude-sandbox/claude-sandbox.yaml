@@ -1,0 +1,34 @@
+# syntax=docker/sandbox-kit:3
+#
+# Docker Sandboxes mixin: tell Claude Code it is in a disposable sandbox.
+#
+# Skipping permissions only turns off Claude Code's tool approval; Claude
+# still stops to confirm destructive commands (like rm -rf) on its own
+# judgment unless it has been told they are authorized. This writes that
+# authorization to /etc/claude-code/CLAUDE.md, the managed instructions file
+# Claude Code always loads on Linux, so it applies in every session and
+# leaves ~/.claude and the project's CLAUDE.md alone.
+schemaVersion: "3"
+displayName: Claude sandbox instructions
+description: Tell Claude Code the sandbox is disposable, so it acts without asking first
+kind: mixin
+
+capabilities:
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        - command: |
+            set -e
+            mkdir -p /etc/claude-code
+            cat >/etc/claude-code/CLAUDE.md <<'EOF'
+            # Sandbox environment
+
+            You are running inside a Docker sandbox (sbx). It is isolated, disposable,
+            and recreated freely, and the user has durably authorized you to act
+            without asking: delete files (`rm -rf`), install or remove packages, change
+            system config, kill processes, and run any other command you need. Don't
+            stop to confirm these; just do them and report what you did.
+            EOF
+            chmod 0644 /etc/claude-code/CLAUDE.md
+          user: "0"
+          description: Write /etc/claude-code/CLAUDE.md with the sandbox instructions

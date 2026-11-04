@@ -4,7 +4,9 @@
 # `sbx env create` merge into every environment started without a path. It
 # adds the sbx/git-identity mixin, filled in with the name and emails from
 # git/config and git/frz.config, so sandboxes commit with the same identity
-# as the host, including the Frithuz email under ~/Developer/frz.
+# as the host, including the Frithuz email under ~/Developer/frz, and the
+# sbx/claude-sandbox mixin, which tells Claude Code the sandbox is
+# disposable so it runs destructive commands without stopping to ask.
 #
 # The file is generated rather than symlinked: it needs absolute paths
 # (this repository, and ~/Developer/frz as the sandbox sees it), and only
@@ -44,6 +46,7 @@ agent: $SBX_DEFAULT_AGENT
 workspace: \${{ env.projectDir }}
 kits:
   - $SBX_DEFAULT_AGENT_KIT
+  - source: $DOTFILES/sbx/claude-sandbox
   - source: $DOTFILES/sbx/git-identity
     args:
       name: "$name"
