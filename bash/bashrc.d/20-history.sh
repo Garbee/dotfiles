@@ -4,6 +4,8 @@ HISTSIZE=100000
 HISTFILESIZE=100000
 HISTCONTROL=ignoreboth:erasedups # skip lines starting with a space, and dupes
 HISTTIMEFORMAT='%F %T '
+# Don't save these exact commands (`cd` alone is skipped, `cd foo` is kept).
+HISTIGNORE='ls:cd:pwd:exit:clear:history:bg:fg'
 shopt -s histappend # append to the history file instead of overwriting it
 shopt -s cmdhist    # save multi-line commands as one entry
 

@@ -11,6 +11,18 @@ else
 fi
 export VISUAL="$EDITOR"
 
+# Read man pages in Neovim: syntax colours, search, and K or Ctrl-] to follow
+# references to other pages. `man` falls back to less if nvim is missing.
+if command -v nvim >/dev/null 2>&1; then
+  export MANPAGER="nvim +Man!"
+fi
+
+# Colour `ls` output (BSD ls reads this; no alias needed).
+export CLICOLOR=1
+
+# bat's colours, matching the Nord palette used elsewhere (built into bat).
+export BAT_THEME="Nord"
+
 # Silence the "default interactive shell is now zsh" notice if the system
 # /bin/bash is ever started.
 export BASH_SILENCE_DEPRECATION_WARNING=1

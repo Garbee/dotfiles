@@ -43,12 +43,18 @@ Bash picks its startup files based on two questions:
       `DOTFILES_BASH`.
    2. Sources **`bash/profile.d/*.sh`** in name order. These set up the
       environment:
-      - `10-homebrew.sh`: `brew shellenv` (Homebrew's `PATH`, `MANPATH`,
-        `HOMEBREW_*`), plus `HOMEBREW_*` settings: no auto-update,
+      - `10-homebrew.sh`: what `brew shellenv` sets (Homebrew's `PATH`,
+        `MANPATH`, `HOMEBREW_*`), written out so brew doesn't run, plus `HOMEBREW_*` settings: no auto-update,
         analytics, hints or automatic cleanup, and taps must be trusted.
+      - `15-orbstack.sh`: OrbStack's init script, which adds
+        `~/.orbstack/bin` (`docker`, `kubectl`, `orb`) to `PATH`.
       - `20-path.sh`: puts `~/.local/bin` (Claude Code, Codex) first in `PATH`.
-      - `30-env.sh`: `EDITOR` (Neovim), `LANG`, `SSH_AUTH_SOCK` (Secretive's
-        agent, used for git commit signing), `DO_NOT_TRACK` and the like.
+      - `30-env.sh`: `EDITOR` (Neovim), `MANPAGER` (man pages in Neovim),
+        `CLICOLOR` (coloured `ls`), `BAT_THEME` (Nord), `LANG`,
+        `SSH_AUTH_SOCK` (Secretive's agent, used for git commit signing),
+        `DO_NOT_TRACK` and the like.
+      - `40-fzf.sh`: fzf lists files and directories with fd (skipping
+        `.gitignore`d paths), and Ctrl-T previews files with bat.
    3. Sources **`~/.bash_profile.local`** if it exists, for machine-specific
       environment settings.
    4. Sources **`~/.bashrc`**. Bash never does this by itself in a login
@@ -58,13 +64,22 @@ Bash picks its startup files based on two questions:
    2. Sources **`bash/bashrc.d/*.sh`** in name order. These are interactive
       settings:
       - `10-options.sh`: `shopt` options.
-      - `20-history.sh`: history size, sharing between tabs, de-duplication.
+      - `20-history.sh`: history size, sharing between tabs, de-duplication,
+        and commands not worth saving (`ls`, `cd`, `pwd`, `exit`, ...).
       - `30-completion.sh`: Homebrew's `bash-completion@2`, if installed.
+        Homebrew packages' completions load the first time each command
+        is completed, through `completion/homebrew/completions`, a symlink
+        to `/opt/homebrew/etc/bash_completion.d`.
       - `35-readline.sh`: line editing: Up/Down search history for lines
-        starting with what's typed, and friendlier Tab completion.
+        starting with what's typed, friendlier Tab completion, Space expands
+        `!!`-style history references, Option-Left/Right move by word.
       - `36-fzf.sh`: fzf's key bindings, if installed: Ctrl-R history
         search, Ctrl-T file paths, Alt-C directories, `**<Tab>` completion.
-      - `40-aliases.sh`: aliases.
+      - `40-aliases.sh`: aliases: `ping` is prettyping, `...` and `....`
+        go up two and three directories.
+      - `45-functions.sh`: `mkcd DIR` (create and enter), `up [N]` (go up N
+        directories), and with fzf, `fcd [DIR]` (pick a directory to cd
+        into) and `fe [DIR]` (pick files to open in `$EDITOR`).
       - `50-prompt.sh`: the Starship prompt, if installed. Its config is
         `starship/starship.toml`, linked as `~/.config/starship.toml`.
    3. Sources **`~/.bashrc.local`** if it exists, for machine-specific
@@ -103,6 +118,15 @@ is picked up by the next new shell.
 
 Clean up temporary variables and helper functions, using `unset` and
 `unset -f`. Everything a fragment defines stays in your shell otherwise.
+
+## Startup time
+
+A new tab takes about 30 ms. To check, run `time bash -lic exit`. Anything
+added to a fragment runs in every new shell, so avoid starting programs
+there: running even a fast command such as `brew shellenv` or
+`fzf --bash` costs several milliseconds each time. Write out its output
+or source the files it prints instead, as `10-homebrew.sh` and
+`36-fzf.sh` do.
 
 ## Local overrides (untracked)
 

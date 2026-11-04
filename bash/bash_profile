@@ -30,7 +30,3 @@ unset __f
 # Bash doesn't read ~/.bashrc in login shells on its own, so do it here.
 # ~/.bashrc returns straight away if the shell isn't interactive.
 [[ -r "$HOME/.bashrc" ]] && . "$HOME/.bashrc"
-
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
-source ~/.orbstack/shell/init.bash 2>/dev/null || :

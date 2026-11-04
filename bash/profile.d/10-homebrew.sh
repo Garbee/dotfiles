@@ -1,6 +1,22 @@
 # Homebrew: PATH, MANPATH, INFOPATH and HOMEBREW_* variables.
+#
+# This is what `brew shellenv bash` prints, written out: running brew costs
+# about 15 ms in every new tab, and on Apple silicon the prefix is always
+# /opt/homebrew. If brew ever changes what it sets, compare with
+# `brew shellenv bash`.
 if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv bash)"
+  export HOMEBREW_PREFIX="/opt/homebrew"
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+  export HOMEBREW_REPOSITORY="/opt/homebrew"
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}"
+  # An empty entry in MANPATH (here a leading :) makes man search its default
+  # paths too, which include Homebrew's man pages once /opt/homebrew/bin is
+  # on PATH.
+  if [[ -n "${MANPATH-}" ]]; then
+    export MANPATH="${MANPATH%"${MANPATH##*[!:]}"}"
+    export MANPATH=":${MANPATH#"${MANPATH%%[!:]*}"}"
+  fi
+  export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 fi
 
 # Homebrew behavior (see `man brew`, ENVIRONMENT).
