@@ -1,6 +1,7 @@
 # syntax=docker/sandbox-kit:3
 #
-# Docker Sandboxes mixin: tell Claude Code it is in a disposable sandbox.
+# Docker Sandboxes mixin: tell Claude Code it is in a disposable sandbox,
+# turn off its git attribution, and set DO_NOT_TRACK.
 #
 # Skipping permissions only turns off Claude Code's tool approval; Claude
 # still stops to confirm destructive commands (like rm -rf) on its own
@@ -8,9 +9,16 @@
 # authorization to /etc/claude-code/CLAUDE.md, the managed instructions file
 # Claude Code always loads on Linux, so it applies in every session and
 # leaves ~/.claude and the project's CLAUDE.md alone.
+#
+# Managed settings (/etc/claude-code/managed-settings.json) turn off the
+# Co-Authored-By trailer on commits and the "Generated with Claude Code"
+# line on pull requests, and give Claude Code and everything it runs
+# DO_NOT_TRACK=1. Kits have no capability for environment variables, so
+# DO_NOT_TRACK also goes in /etc/environment and /etc/profile.d for other
+# shells and logins in the sandbox.
 schemaVersion: "3"
 displayName: Claude sandbox instructions
-description: Tell Claude Code the sandbox is disposable, so it acts without asking first
+description: Tell Claude Code the sandbox is disposable, turn off its git attribution, and set DO_NOT_TRACK
 kind: mixin
 
 capabilities:
@@ -32,3 +40,22 @@ capabilities:
             chmod 0644 /etc/claude-code/CLAUDE.md
           user: "0"
           description: Write /etc/claude-code/CLAUDE.md with the sandbox instructions
+        - command: |
+            set -e
+            mkdir -p /etc/claude-code
+            cat >/etc/claude-code/managed-settings.json <<'EOF'
+            {
+              "attribution": {"commit": "", "pr": ""},
+              "includeCoAuthoredBy": false,
+              "env": {"DO_NOT_TRACK": "1"}
+            }
+            EOF
+            chmod 0644 /etc/claude-code/managed-settings.json
+            if ! grep -qs '^DO_NOT_TRACK=' /etc/environment; then
+              echo 'DO_NOT_TRACK=1' >>/etc/environment
+            fi
+            mkdir -p /etc/profile.d
+            echo 'export DO_NOT_TRACK=1' >/etc/profile.d/do-not-track.sh
+            chmod 0644 /etc/profile.d/do-not-track.sh
+          user: "0"
+          description: Turn off Claude Code's git attribution and set DO_NOT_TRACK
