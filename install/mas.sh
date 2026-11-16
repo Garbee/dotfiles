@@ -42,6 +42,10 @@ appStoreApps+=("361309726") # Pages
 appStoreApps+=("408981434") # iMovie
 appStoreApps+=("1631624924") # Final Cut Pro
 appStoreApps+=("6746516157") # Compressor
+appStoreApps+=("6746662575") # Pixelmator Pro
+appStoreApps+=("6447014685") # Finalist
+appStoreApps+=("6748614170") # Parachute Backup
+appStoreApps+=("6821602616") # Finis
 '
 
 # Print MAS_APPS as "ID Name" lines.
