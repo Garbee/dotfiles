@@ -48,7 +48,9 @@ Bash picks its startup files based on two questions:
         analytics, hints or automatic cleanup, and taps must be trusted.
       - `15-orbstack.sh`: OrbStack's init script, which adds
         `~/.orbstack/bin` (`docker`, `kubectl`, `orb`) to `PATH`.
-      - `20-path.sh`: puts `~/.local/bin` (Claude Code, Codex) first in `PATH`.
+      - `20-path.sh`: puts `~/.cargo/bin` (`cargo install`ed commands),
+        Homebrew's keg-only rustup proxies and `~/.local/bin` (Claude Code,
+        Codex) first in `PATH`, ahead of Homebrew's own `cargo`.
       - `30-env.sh`: `EDITOR` (Neovim), `MANPAGER` (man pages in Neovim),
         `CLICOLOR` (coloured `ls`), `BAT_THEME` (Nord), `LANG`,
         `SSH_AUTH_SOCK` (Secretive's agent, used for git commit signing),

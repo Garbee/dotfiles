@@ -21,6 +21,14 @@ __path_prepend "$PNPM_HOME/bin"
 # Native installers (Claude Code, Codex) put their binaries here.
 __path_prepend "$HOME/.local/bin"
 
+# Rust, ahead of Homebrew. Homebrew's rustup is keg-only, as it conflicts
+# with the rust formula, so its proxies (cargo, rustc, rustfmt, ...) are
+# only found here. They honour rust-toolchain.toml and `cargo +nightly`,
+# which Homebrew's own cargo does not.
+__path_prepend "/opt/homebrew/opt/rustup/bin"
+# `cargo install` puts commands here (cargo-deny, ...).
+__path_prepend "${CARGO_HOME:-$HOME/.cargo}/bin"
+
 # Keep the first occurrence of each directory. path_helper re-appends the
 # inherited PATH in nested login shells, which leaves repeats at the end.
 __path_dedupe() {
