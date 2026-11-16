@@ -24,8 +24,16 @@ install_claude_code() {
   fi
 
   note "Running the official Claude Code installer."
-  /bin/bash -c "$(curl -fsSL https://claude.ai/install.sh)"
-  DONE+=("Claude Code")
+  local installer
+  if installer="$(curl -fsSL https://claude.ai/install.sh)" &&
+    /bin/bash -c "$installer"; then
+    DONE+=("Claude Code")
+  else
+    note "The Claude Code installer failed; continuing. To install it by hand:"
+    note "  curl -fsSL https://claude.ai/install.sh | bash"
+    SKIPPED+=("Claude Code (installer failed)")
+    return 0
+  fi
 
   case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;

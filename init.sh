@@ -81,7 +81,16 @@ main() {
   # When piped into bash, stdin is the script itself, and install-macos.sh
   # would treat the run as non-interactive and couldn't ask for the password
   # or the git signing key. Give it the terminal instead, if there is one.
-  if { : </dev/tty; } 2>/dev/null; then
+  # Use the terminal's own device (such as /dev/ttys003) rather than
+  # /dev/tty: macOS's kqueue can't watch /dev/tty, so programs that read
+  # stdin through it, like the Claude Code installer (built with Bun), fail
+  # with "EINVAL: invalid argument, kqueue".
+  local tty_name
+  tty_name="$(ps -o tty= -p "$$" 2>/dev/null | tr -d ' ' || true)"
+  if [[ -n "$tty_name" ]] && [[ "$tty_name" != "??" ]] &&
+    { : <"/dev/$tty_name"; } 2>/dev/null; then
+    /bin/bash "$DOTFILES_DIR/install-macos.sh" "$@" <"/dev/$tty_name"
+  elif { : </dev/tty; } 2>/dev/null; then
     /bin/bash "$DOTFILES_DIR/install-macos.sh" "$@" </dev/tty
   else
     /bin/bash "$DOTFILES_DIR/install-macos.sh" "$@"
