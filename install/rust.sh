@@ -119,7 +119,9 @@ cargo_install() {
   if ((DRY_RUN)); then
     note "[dry-run] $RUSTUP_BIN/cargo install --locked $crate"
     DONE+=("$label")
-  elif "$RUSTUP_BIN/cargo" install --locked "$crate"; then
+  # cargo runs rustc by name, so rustup's proxies must be on PATH: they're
+  # only on it in shells set up by bash/profile.d/20-path.sh.
+  elif PATH="$RUSTUP_BIN:$PATH" "$RUSTUP_BIN/cargo" install --locked "$crate"; then
     DONE+=("$label")
   else
     note "Could not install $crate; continuing."
