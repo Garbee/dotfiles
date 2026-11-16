@@ -106,9 +106,11 @@ main() {
   enable_firewall
   enable_touch_id_sudo
   set_login_shell
-  # Last: it needs a Docker sign-in, which it asks for (with 1Password
-  # installed to sign in with), so the rest of the run is unattended.
+  # Last: these need a Docker sign-in, which the first asks for (with
+  # 1Password installed to sign in with), so the rest of the run is
+  # unattended.
   allow_sbx_kit_sources
+  store_sbx_docker_hub_secret
 
   log "Summary"
   # ${arr[@]+...} avoids "unbound variable" for empty arrays in bash 3.2.

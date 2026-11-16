@@ -1,0 +1,49 @@
+# syntax=docker/sandbox-kit:3
+#
+# Docker Sandboxes mixin: authenticate the sandbox's Docker Hub traffic as
+# the host's `docker login` account, without the token entering the sandbox.
+#
+# Docker Hub hands out pull/push tokens from auth.docker.io; the sandbox's
+# proxy adds HTTP Basic auth (username plus the host's token) to every request
+# there, so `docker pull`, `docker push` and builds inside get authenticated
+# tokens (and the account's rate limits) without a `docker login`. The
+# credential is inject-only: nothing in the sandbox's environment or
+# filesystem holds it, not even a placeholder.
+#
+# The token comes from the host's `docker-hub` secret, which install/sbx.sh
+# stores as a command that reads the Docker credential store, so sbx always
+# uses whatever `docker login` saved. The username comes in as an argument,
+# filled in by install/sbx.sh, so nothing personal is tracked here. The
+# credential is optional: without the secret or an approved binding, the
+# sandbox runs with anonymous Docker Hub access.
+schemaVersion: "3"
+displayName: Docker Hub auth
+description: Authenticate Docker Hub pulls and pushes with the host's docker login, via the proxy
+kind: mixin
+
+args:
+  username:
+    required: true
+    description: Docker Hub username the host's token belongs to
+    pattern: ^[a-z0-9]+$
+
+capabilities:
+  - type: com.docker.sandbox/credential@1
+    optional: true
+    description: Docker Hub token from the host's docker login, for registry auth
+    config:
+      service: docker-hub
+      phase: [install, runtime]
+      apiKey:
+        proxyManaged: true
+        inject:
+          - domain: auth.docker.io
+            scheme: basic
+            username: ${{ kit.args.username }}
+
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      install:
+        allow: [auth.docker.io]
+      runtime:
+        allow: [auth.docker.io]
