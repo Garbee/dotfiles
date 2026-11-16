@@ -2,7 +2,8 @@
 #
 # Global git config: symlink git/config to ~/.config/git/config (and
 # git/frz.config, which it includes for repositories under ~/Developer/frz, to
-# ~/.config/git/frz.config), put this machine's SSH signing key (a Secretive
+# ~/.config/git/frz.config, and git/ignore, the global gitignore, to
+# ~/.config/git/ignore), put this machine's SSH signing key (a Secretive
 # public key) in the untracked ~/.config/git/config.local, and trust it in
 # ~/.config/git/allowed_signers for the email addresses of both.
 #
@@ -39,6 +40,8 @@ link_git_config() {
   fi
   link_file "Git config for ~/Developer/frz" \
     "$DOTFILES/git/frz.config" "$GIT_CONFIG_DIR/frz.config" || true
+  # Git reads ~/.config/git/ignore when core.excludesFile isn't set.
+  link_file "Global gitignore" "$DOTFILES/git/ignore" "$GIT_CONFIG_DIR/ignore" || true
 }
 
 # Read a Secretive public key from the user. Prints the key, or nothing if

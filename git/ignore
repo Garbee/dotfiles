@@ -1,0 +1,8 @@
+# Global gitignore: git reads ~/.config/git/ignore (core.excludesFile's
+# default), which install-macos.sh symlinks here.
+
+# Finder's folder view settings.
+.DS_Store
+
+# Claude Code's worktrees for parallel sessions.
+**/.claude/worktrees/
