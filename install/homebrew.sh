@@ -129,6 +129,9 @@ install_brew_packages() {
   # puts it on PATH.
   brew_install "curl" curl
   brew_install "Node.js" node
+  # Rust toolchains (see install/rust.sh). Keg-only, as it conflicts with the
+  # rust formula; bash/profile.d/20-path.sh puts its proxies on PATH.
+  brew_install "rustup" rustup
   # Architecture Decision Records.
   brew_install "adrs" adrs
   # Command-line installs from the Mac App Store.

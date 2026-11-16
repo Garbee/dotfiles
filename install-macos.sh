@@ -62,7 +62,7 @@ fi
 # The repository this script lives in (symlink targets point into it).
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-for module in lib xcode homebrew gh mas bash starship neovim claude codex pnpm ssh dotfiles-remote git sbx macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
+for module in lib xcode homebrew gh mas rust bash starship neovim claude codex pnpm ssh dotfiles-remote git sbx macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
   # shellcheck source=/dev/null
   source "$DOTFILES/install/$module.sh"
 done
@@ -85,6 +85,7 @@ main() {
   ask_git_signing_key
   install_gh_extensions
   install_mas_apps
+  install_rust
   link_bash_files
   create_hushlogin
   link_starship_config
