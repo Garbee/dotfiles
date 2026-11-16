@@ -65,6 +65,10 @@ configure_claude_code() {
   json_set "$settings" '["env", "CLAUDE_CODE_ARTIFACT_MCP"]' '"false"'
   json_set "$settings" '["env", "CLAUDE_CODE_SKIP_PLUGIN_MCP_SERVERS"]' '"1"'
 
+  # No auto memory: Claude Code doesn't save notes about you or your
+  # projects between sessions on its own.
+  json_set "$settings" '["autoMemoryEnabled"]' 'false'
+
   # Trust the home folder so Claude Code doesn't ask when started there.
   # Claude Code records an untrusted folder as false, so that may be replaced.
   local home_real
