@@ -62,7 +62,7 @@ fi
 # The repository this script lives in (symlink targets point into it).
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-for module in lib xcode homebrew gh mas rust bash starship neovim claude codex pnpm ssh dotfiles-remote git sbx macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
+for module in lib xcode homebrew gh mas rust bash starship neovim claude codex herdr pnpm ssh dotfiles-remote git sbx macos-settings wins color-palettes time-machine firewall touch-id-sudo login-shell; do
   # shellcheck source=/dev/null
   source "$DOTFILES/install/$module.sh"
 done
@@ -95,6 +95,7 @@ main() {
   configure_claude_code
   install_codex
   configure_codex
+  configure_herdr
   install_pnpm
   link_ssh_config
   use_ssh_dotfiles_remote
