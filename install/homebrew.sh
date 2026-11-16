@@ -125,7 +125,12 @@ install_brew_packages() {
   # scripts here rely on stay first on PATH.
   brew_install "coreutils" coreutils
   brew_install "prettyping" prettyping
+  # Newer than macOS's /usr/bin/curl. Keg-only, so bash/profile.d/20-path.sh
+  # puts it on PATH.
+  brew_install "curl" curl
   brew_install "Node.js" node
+  # Architecture Decision Records.
+  brew_install "adrs" adrs
   # Command-line installs from the Mac App Store.
   brew_install "mas" mas
   # Lets Touch ID for sudo work inside tmux and screen (see touch-id-sudo.sh).
@@ -148,6 +153,9 @@ install_brew_packages() {
   brew_install "UniFi Identity Endpoint" unifi-identity-endpoint \
     --app "/Applications/UniFi Endpoint.app" --sudo
   brew_install "Wins" wins --app /Applications/Wins.app
+  brew_install "Brave Origin" brave-origin --app "/Applications/Brave Origin.app"
+  brew_install "OpenUsage" openusage --app /Applications/OpenUsage.app
+  brew_install "SoundSource" soundsource --app /Applications/SoundSource.app
   brew_trust_tap docker/tap
   brew_install "Docker Sandboxes (sbx)" docker/tap/sbx
   brew_install "GitHub CLI" gh

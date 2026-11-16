@@ -12,6 +12,10 @@ __path_prepend() {
   PATH="$1${p:+:${p%:}}"
 }
 
+# Homebrew's curl, ahead of /usr/bin/curl. It's keg-only (macOS has its
+# own), so it isn't in /opt/homebrew/bin.
+__path_prepend "/opt/homebrew/opt/curl/bin"
+
 # pnpm's standalone installer (install-macos.sh) puts pnpm in $PNPM_HOME/bin,
 # and `pnpm add -g` puts global packages' commands there too. pnpm reads
 # PNPM_HOME to find its home, so export it.
