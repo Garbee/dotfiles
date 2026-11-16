@@ -83,6 +83,7 @@ main() {
   # The only other question, as soon as Secretive (a Homebrew cask) is there
   # to create the key in.
   ask_git_signing_key
+  configure_gh_protocol
   install_gh_extensions
   install_mas_apps
   install_rust
